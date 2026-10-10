@@ -1,14 +1,17 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { config } from '../config';
-import type { JwtClaims, Role, ID } from '@inkroom/shared';
+import config from '../config';
+import type { JwtClaims } from '@inkroom/shared';
 
-export function signParticipantToken(claims: Omit<JwtClaims, 'iat' | 'exp'>, expiresIn = '12h'): string {
-  return jwt.sign(claims, config.jwtSecret, { expiresIn });
+export function signParticipantToken(
+  claims: Omit<JwtClaims, 'iat' | 'exp'>,
+  expiresIn = '12h'
+): string {
+  return jwt.sign(claims, config.jwt_access_secret || 'inkroom_jwt_secret', { expiresIn });
 }
 
 export function verifyParticipantToken(token: string): JwtClaims {
-  return jwt.verify(token, config.jwtSecret) as JwtClaims;
+  return jwt.verify(token, config.jwt_access_secret || 'inkroom_jwt_secret') as JwtClaims;
 }
 
 export function hashSecret(secret: string): string {

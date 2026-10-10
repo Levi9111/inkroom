@@ -1,19 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-import type { BoardMode, BoardSettings } from '@inkroom/shared';
-
-export interface IBoard extends Document {
-  _id: string;
-  title: string;
-  roomCode: string;
-  teacherSecretHash: string;
-  coTeacherSecretHashes: string[];
-  mode: BoardMode;
-  settings: BoardSettings;
-  lastActiveAt: Date;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import mongoose, { Schema } from 'mongoose';
+import type { IBoard } from './board.interface';
 
 const BoardSchema = new Schema<IBoard>(
   {
