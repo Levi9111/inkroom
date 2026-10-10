@@ -11,6 +11,12 @@ router.post(
   BoardController.createBoard
 );
 
+router.post(
+  '/join',
+  validateRequest(BoardValidation.joinBoardZodSchema),
+  BoardController.joinBoard
+);
+
 router.get('/:id/info', BoardController.getBoard);
 router.patch('/:id', validateRequest(BoardValidation.updateBoardZodSchema), BoardController.updateBoard);
 router.delete('/:id', BoardController.deleteBoard);

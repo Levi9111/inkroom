@@ -2,7 +2,7 @@ import { Hocuspocus } from '@hocuspocus/server';
 import { Database } from '@hocuspocus/extension-database';
 import { verifyParticipantToken } from '../utils/tokens';
 import { BoardModel } from '../modules/Board/board.model';
-import { YDocModel, YDocChunkModel } from '../modules/Board/ydoc.model';
+import { YDocModel, YDocChunkModel } from './ydoc.model';
 import { isConnected } from '../utils/connectDB';
 import { canDraw, type PermissionContext } from '@inkroom/shared';
 
@@ -12,14 +12,14 @@ const memoryYDocs = new Map<string, Buffer>();
 export async function loadYState(documentName: string): Promise<Uint8Array | null> {
   if (isConnected) {
     try {
-      const doc = await YDocModel.findById(documentName).lean();
+      const doc = (await YDocModel.findById(documentName).lean()) as any;
       if (!doc) return null;
 
       if (doc.chunksCount > 1) {
         const chunks = await YDocChunkModel.find({ docId: documentName })
           .sort({ chunkIndex: 1 })
           .lean();
-        const buffers = chunks.map((c) => c.data);
+        const buffers = chunks.map((c: any) => c.data);
         return new Uint8Array(Buffer.concat(buffers));
       }
 
@@ -96,7 +96,8 @@ export function createHocuspocusServer(): Hocuspocus {
     debounce: 2000,
     maxDebounce: 10000,
 
-    async onAuthenticate({ token, documentName, connectionConfig }) {
+    async onAuthenticate(data: any) {
+      const { token, documentName, connectionConfig } = data;
       if (!token) {
         throw new Error('Authentication required');
       }

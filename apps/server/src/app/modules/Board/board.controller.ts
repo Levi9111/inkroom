@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import catchAsync from '../../utils/catchAsync';
+import { catchAsync } from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { BoardService } from './board.service';
 
@@ -16,7 +16,8 @@ export const BoardController = {
   }),
 
   getBoard: catchAsync(async (req: Request, res: Response) => {
-    const result = await BoardService.getBoardById(req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await BoardService.getBoardById(id);
     if (!result) {
       return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
@@ -32,7 +33,8 @@ export const BoardController = {
   }),
 
   updateBoard: catchAsync(async (req: Request, res: Response) => {
-    const result = await BoardService.updateBoard(req.params.id, req.body);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await BoardService.updateBoard(id, req.body);
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -42,7 +44,8 @@ export const BoardController = {
   }),
 
   deleteBoard: catchAsync(async (req: Request, res: Response) => {
-    await BoardService.deleteBoard(req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    await BoardService.deleteBoard(id);
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,

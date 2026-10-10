@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { generateRoomCode, sanitizeRoomCode, type Role } from '@inkroom/shared';
 import { BoardModel } from './board.model';
-import { YDocModel, YDocChunkModel } from './ydoc.model';
+import { YDocModel, YDocChunkModel } from '../../realtime/ydoc.model';
 import { generateTeacherSecret, hashSecret, verifySecret, signParticipantToken } from '../../utils/tokens';
 import { isConnected } from '../../utils/connectDB';
 
@@ -67,14 +67,14 @@ export const BoardService = {
 
   async getBoardById(id: string) {
     if (isConnected) {
-      const board = await BoardModel.findById(id).lean();
+      const board = (await BoardModel.findById(id).lean()) as any;
       if (!board) return null;
       return {
-        boardId: board._id,
-        title: board.title,
-        roomCode: board.roomCode,
-        mode: board.mode,
-        createdAt: board.createdAt,
+        boardId: board._id as string,
+        title: board.title as string,
+        roomCode: board.roomCode as string,
+        mode: board.mode as any,
+        createdAt: board.createdAt as Date,
       };
     }
 

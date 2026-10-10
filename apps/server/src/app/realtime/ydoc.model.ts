@@ -1,6 +1,6 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-export interface IYDoc extends Document {
+export interface IYDoc {
   _id: string; // Document name (e.g. board:abc:meta or board:abc:page:xyz)
   boardId: string;
   state: Buffer;
@@ -22,7 +22,7 @@ const YDocSchema = new Schema<IYDoc>(
 
 export const YDocModel = mongoose.models.YDoc || mongoose.model<IYDoc>('YDoc', YDocSchema);
 
-export interface IYDocChunk extends Document {
+export interface IYDocChunk {
   docId: string;
   chunkIndex: number;
   data: Buffer;

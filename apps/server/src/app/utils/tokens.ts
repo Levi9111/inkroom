@@ -7,7 +7,9 @@ export function signParticipantToken(
   claims: Omit<JwtClaims, 'iat' | 'exp'>,
   expiresIn = '12h'
 ): string {
-  return jwt.sign(claims, config.jwt_access_secret || 'inkroom_jwt_secret', { expiresIn });
+  return jwt.sign(claims, (config.jwt_access_secret || 'inkroom_jwt_secret') as jwt.Secret, {
+    expiresIn: expiresIn as any,
+  });
 }
 
 export function verifyParticipantToken(token: string): JwtClaims {
