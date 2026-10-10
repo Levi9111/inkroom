@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-canvas: #FFFFFF;
+  --bg-surface: #F8FAFC;
+  --bg-surface-raised: #FFFFFF;
+  --border: #E2E8F0;
+  --text: #0F172A;
+  --text-muted: #475569;
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --focus-ring: #4F46E5;
+}
+
+.theme-dark {
+  --bg-canvas: #0B1220;
+  --bg-surface: #111827;
+  --bg-surface-raised: #1F2937;
+  --border: #374151;
+  --text: #F1F5F9;
+  --text-muted: #94A3B8;
+  --accent: #818CF8;
+  --accent-hover: #6366F1;
+  --focus-ring: #818CF8;
+}
+
+.theme-blackboard {
+  --bg-canvas: #1F3D2F;
+  --bg-surface: #14271E;
+  --bg-surface-raised: #1B3529;
+  --border: #2C5441;
+  --text: #F0FDF4;
+  --text-muted: #A7F3D0;
+  --accent: #34D399;
+  --accent-hover: #10B981;
+  --focus-ring: #34D399;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Ensure smooth canvas dragging and drawing */
+canvas {
+  touch-action: none;
+}
