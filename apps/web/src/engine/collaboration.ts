@@ -61,7 +61,7 @@ export class CollaborationClient {
         this.options.onConnectionStatusChange?.(event.status);
       },
       onAwarenessUpdate: ({ states }) => {
-        const awarenessList: AwarenessState[] = states.map((s) => s as AwarenessState);
+        const awarenessList: AwarenessState[] = states.map((s) => s as unknown as AwarenessState);
         this.options.onAwarenessChange?.(awarenessList);
 
         for (const s of awarenessList) {
