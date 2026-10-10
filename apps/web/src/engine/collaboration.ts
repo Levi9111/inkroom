@@ -50,7 +50,9 @@ export class CollaborationClient {
   }
 
   private connectMetaProvider() {
-    const wsUrl = this.options.serverUrl || (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
+    const envWs = (import.meta as any).env?.VITE_WS_URL || (import.meta as any).env?.VITE_SERVER_URL?.replace(/^http/, 'ws');
+    const defaultWs = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
+    const wsUrl = this.options.serverUrl || envWs || defaultWs;
 
     this.metaProvider = new HocuspocusProvider({
       url: wsUrl,
@@ -111,7 +113,9 @@ export class CollaborationClient {
       this.activePageProvider.destroy();
     }
 
-    const wsUrl = this.options.serverUrl || (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
+    const envWs = (import.meta as any).env?.VITE_WS_URL || (import.meta as any).env?.VITE_SERVER_URL?.replace(/^http/, 'ws');
+    const defaultWs = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
+    const wsUrl = this.options.serverUrl || envWs || defaultWs;
 
     this.activePageProvider = new HocuspocusProvider({
       url: wsUrl,

@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: inkroom-server
+    env: node
+    plan: free
+    buildCommand: pnpm install && pnpm --filter @inkroom/server build
+    startCommand: pnpm --filter @inkroom/server start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false # Set in Render Dashboard with your MongoDB Atlas URI
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false # e.g. https://your-inkroom.vercel.app
