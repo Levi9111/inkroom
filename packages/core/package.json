@@ -1,0 +1,25 @@
+{
+  "name": "@inkroom/core",
+  "version": "1.0.0",
+  "description": "Headless whiteboard geometry, spatial culling, ink pipeline, and CRDT document management",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@inkroom/shared": "workspace:*",
+    "nanoid": "^5.1.3",
+    "perfect-freehand": "^1.2.2",
+    "rbush": "^4.0.1",
+    "yjs": "^13.6.23"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
