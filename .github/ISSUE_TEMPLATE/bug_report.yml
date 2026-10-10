@@ -1,0 +1,66 @@
+name: Bug Report
+description: File a bug report to help us improve Inkroom
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide as much detail as possible.
+  - type: input
+    id: version
+    attributes:
+      label: Inkroom Version
+      description: What version of Inkroom are you using (or git commit SHA)?
+      placeholder: e.g. v1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser / Client Environment
+      options:
+        - Chrome / Chromium
+        - Firefox
+        - Safari / iOS
+        - Edge
+        - PWA (Desktop/Tablet)
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: input_device
+    attributes:
+      label: Input Device
+      options:
+        - Mouse / Trackpad
+        - Stylus (Apple Pencil, S-Pen, Wacom)
+        - Touch / Finger
+        - Mixed
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the problem.
+      value: |
+        1. Open board
+        2. Select tool '...'
+        3. Draw / interact
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
