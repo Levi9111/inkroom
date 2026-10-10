@@ -1,0 +1,399 @@
+# Inkroom: Audit Report & Final Product Plan
+
+| | |
+|---|---|
+| **Project name** | **Inkroom**: a free, open-source, real-time classroom whiteboard |
+| **Tagline** | *Write together. Teach anywhere.* |
+| **Stack** | **MERN** (MongoDB, Express, React, Node.js) + TypeScript; Yjs/Hocuspocus for realtime |
+| **Document type** | Audit report of the initial plan + final build plan (architecture, features, UI/UX) |
+| **Version / date** | 1.2, 10 October 2026 (v1.1: named Inkroom; v1.2: rebased on the MERN stack) |
+| **Status** | Final recommendation, ready for Milestone 0 (spikes) |
+| **Audience** | Project owner / lead developer, future contributors |
+
+---
+
+## Table of Contents
+
+1. [Executive Summary](#1-executive-summary)
+2. [Scope, Method & Assumptions](#2-scope-method--assumptions)
+3. [Audit of the Initial Plan](#3-audit-of-the-initial-plan)
+4. [Product Definition](#4-product-definition)
+5. [Architecture Decision Records](#5-architecture-decision-records)
+6. [System Architecture](#6-system-architecture)
+7. [Data Model](#7-data-model)
+8. [Feature Specification](#8-feature-specification)
+9. [UI/UX Specification](#9-uiux-specification)
+10. [Performance Budgets](#10-performance-budgets)
+11. [Security & Privacy](#11-security--privacy)
+12. [Quality Strategy](#12-quality-strategy)
+13. [DevOps, Deployment & Self-Hosting](#13-devops-deployment--self-hosting)
+14. [Licensing, Governance & Sustainability](#14-licensing-governance--sustainability)
+15. [Roadmap](#15-roadmap)
+16. [Risk Register](#16-risk-register)
+17. [Success Metrics](#17-success-metrics)
+18. [Open Decisions & Next Steps](#18-open-decisions--next-steps)
+19. [Appendices](#19-appendices)
+
+---
+
+## 1. Executive Summary
+
+The initial plan (React + TypeScript, Konva, Yjs, Node, PostgreSQL/Redis, five phases) is a **sound starting point**. The technology choices are mainstream and the feature list covers the basics. However, the audit found **18 findings**: 4 critical, 7 major, 7 minor. The most important are:
+
+- **Undo/redo is designed to conflict with collaboration.** A global Zustand history stack will undo other people's edits once Yjs is the source of truth.
+- **The plan never decides between building and integrating** (fork Excalidraw, use the tldraw SDK, or build on Konva). That choice drives the timeline, license and product identity.
+- **Pen quality and rendering performance are under-specified.** For a classroom product, the feel of writing with a stylus is the product. Konva's per-node model will also slow down with thousands of strokes.
+- **Classroom-specific requirements are missing or deferred**: roles and permissions, PDF/slide annotation, multi-page boards, privacy for minors, moderation, offline resilience, accessibility and multi-script text input.
+- **The timeline is unrealistic** (8 weeks for a collaborative whiteboard), and the infrastructure is heavier than an MVP needs (Redis, separate presence store).
+
+**Final recommendation in one paragraph:** Build a **local-first, single-user whiteboard first**, then add collaboration. Use **React (UI chrome only) + imperative Konva (canvas) + `perfect-freehand`** for rendering, a **spatial index (rbush)** for culling and hit-testing, and **Yjs with one document per page** served by **Hocuspocus** for sync and per-page permissions. Follow the **MERN stack with TypeScript end to end**: **Express on Node.js** hosts both the REST API and Hocuspocus, and **MongoDB** (via Mongoose) stores board metadata and the binary Yjs state, with images and PDF pages in S3-compatible storage (or local disk when self-hosting). The one MERN-specific hazard is MongoDB's 16 MB document limit, handled in Section 6.6.4. Make **teacher/student roles, PDF annotation, multiple pages, and privacy-by-default** core features, not extras. License under **MIT**. Plan for roughly **8 months** at part-time pace, with a usable public alpha at about month 3.
+
+---
+
+## 2. Scope, Method & Assumptions
+
+### 2.1 Scope
+This report audits the supplied research/plan document and produces a replacement plan. It does not audit any existing codebase (none exists yet).
+
+### 2.2 Method
+- Reviewed every claim and recommendation in the original document for correctness, completeness, feasibility and risk.
+- Cross-checked the architecture against known constraints of Yjs/CRDTs, canvas rendering, pointer-input handling, and web security.
+- Classified findings by severity:
+  - **Critical**: will cause rework or product failure if not fixed.
+  - **Major**: significant quality, cost or schedule impact.
+  - **Minor**: improvement or hygiene item.
+
+### 2.3 Assumptions
+- Solo developer, working part-time (about 10 to 15 hours per week). Timelines scale accordingly.
+- Target users: teachers and students from primary school through university, on mixed devices (laptops, Chromebooks, tablets with stylus, phones as secondary), often with unreliable internet.
+- "Free" means no paywalled core features and a simple self-host path, not unlimited free hosting.
+- Existing third-party projects named in the original document (FalconBoard, Boardier, Tapiz, GalleryBoard, etc.) were **not independently verified** here. Check their repositories and licenses yourself before borrowing ideas or code.
+
+---
+
+## 3. Audit of the Initial Plan
+
+### 3.1 Scorecard
+
+| Area | Rating | Comment |
+|---|---|---|
+| Technology selection | Good | Mainstream and well-supported; needs a build-vs-integrate decision |
+| Feature coverage | Fair | Core drawing covered; classroom workflow largely missing |
+| Architecture | Fair | Clean layers, but undo, assets and infra choices are flawed |
+| Realtime/collaboration design | Fair | Yjs is right; data model and permissions undefined |
+| UI/UX | Poor | No UI specification at all |
+| Performance | Poor | No budgets, no strategy for large boards |
+| Security & privacy | Poor | Not addressed; critical for minors |
+| Testing & quality | Poor | Not addressed |
+| Roadmap realism | Poor | Timeline optimistic; ordering suboptimal |
+| Open-source readiness | Fair | License, governance, self-hosting not defined |
+
+### 3.2 Findings
+
+| ID | Severity | Finding | Impact | Resolution in this plan |
+|---|---|---|---|---|
+| F-01 | **Critical** | Undo/redo via Zustand history middleware, alongside Yjs collaboration | Users undo each other's work; state diverges from the CRDT | Use `Y.UndoManager` scoped to local-origin transactions (ADR-06) |
+| F-02 | **Critical** | No decision between fork Excalidraw / tldraw SDK / build on Konva | Timeline, license and identity are all undetermined | Decided: build on Konva with own data model (ADR-01); spike first |
+| F-03 | **Critical** | Freehand quality not specified (Konva `tension` only); no pointer-event/stylus strategy | Writing feels laggy and jagged; teachers abandon the tool | `perfect-freehand`, Pointer Events with pressure, coalesced events, palm rejection (ADR-03) |
+| F-04 | **Critical** | No privacy/safety design although users include children | Legal, ethical and adoption risk | Privacy-by-default, no accounts for students, retention limits (Section 11) |
+| F-05 | Major | Rendering performance not planned; one Konva node per stroke | Pan/zoom degrades after a few thousand strokes | Layered rendering, viewport culling, cached static layer, rbush index (ADR-02) |
+| F-06 | Major | Images implied to live in the synced document | Doc bloat, slow sync, memory pressure | Assets in object storage; doc stores references only (ADR-08) |
+| F-07 | Major | Pixel eraser listed alongside a vector data model | Incompatible with CRDT element model | Stroke eraser in v1; partial erase (stroke splitting) as later enhancement |
+| F-08 | Major | Teacher/student roles and permissions missing (only "raise hand"/"spotlight" late) | Core classroom workflow absent | Roles and permission modes are Milestone 4 core (Section 6.5) |
+| F-09 | Major | No PDF/slide annotation; no multi-page boards | Misses the single most common teacher workflow | Multi-page and PDF import in Milestone 2 |
+| F-10 | Major | Redis plus PostgreSQL for MVP | Operational overhead with little benefit | Single database (MongoDB) behind a storage interface; presence via Yjs Awareness (ADR-05) |
+| F-11 | Major | Timeline of 8 weeks | Burnout and abandonment risk | Re-baselined to about 32 weeks part-time with exit criteria per milestone |
+| F-12 | Minor | SVG export "by traversing the scene graph" | Fragile, inconsistent with rendering | Export from the data model, not from Konva nodes |
+| F-13 | Minor | PDF export via a single canvas image | Single raster page; huge files; no multi-page | Per-page render, multi-page PDF, resolution options |
+| F-14 | Minor | No offline/resilience strategy | Lost work on flaky classroom Wi-Fi | Local-first with `y-indexeddb`, reconnect UX |
+| F-15 | Minor | No accessibility or multi-script text plan (IME, RTL, fonts) | Excludes users; text input bugs | WCAG 2.2 AA target, IME-safe textarea overlay, bundled fonts (Section 9.8, 9.9) |
+| F-16 | Minor | No testing strategy | Regressions in sync and input | Convergence tests, Playwright multi-client, perf harness (Section 12) |
+| F-17 | Minor | No license, governance or sustainability plan | Weak contributor and adopter confidence | MIT, CONTRIBUTING, funding options (Section 14) |
+| F-18 | Minor | Handwriting recognition, chat, screen sharing in scope | Large effort, low marginal value | Deferred/cut; students can use a video tool alongside |
+
+### 3.3 What the Initial Plan Got Right
+- Yjs (CRDT) for collaboration, which is more robust than hand-rolled OT or last-write-wins.
+- TypeScript throughout; Zustand for UI state; Tailwind for speed.
+- Room-code join flow modeled on classroom-friendly tools.
+- Separation of client, collaboration server and persistence.
+- Studying Excalidraw's monorepo structure and core/app separation.
+
+---
+
+## 4. Product Definition
+
+### 4.1 Vision
+> A whiteboard that a teacher can open and start teaching on within 30 seconds, that a student can join without an account, and that anyone can host for free.
+
+### 4.2 Personas
+
+| Persona | Needs | Constraints |
+|---|---|---|
+| **Teacher (primary)** | Fast start, natural writing, annotate slides/PDFs, control who can draw, save/export the lesson | Often on a projector, mixed devices, little time |
+| **Student** | Join by code, write/draw when allowed, see the board clearly | May be a child; shared or low-end device; no email |
+| **Tutor / freelance instructor** | Quick one-to-one sessions, math tools | Often on a tablet with a stylus |
+| **School IT / self-hoster** | One-command install, no vendor lock-in, privacy control | Limited budget and time |
+
+### 4.3 Goals
+1. Writing with a stylus or mouse feels as good as the best commercial tools.
+2. Real-time collaboration that survives bad networks.
+3. Teacher-first controls (roles, permission modes, moderation).
+4. Zero-friction student access, with privacy by default.
+5. Trivial self-hosting; fully open source.
+
+### 4.4 Non-Goals (v1)
+- Video/audio conferencing and screen sharing
+- Built-in chat (a minimal reactions/raise-hand mechanism instead)
+- Handwriting-to-text recognition
+- LMS integration (LTI) and gradebooks (consider post-v1)
+- Native mobile apps (the PWA covers tablets and phones)
+
+### 4.5 Design Principles
+1. **Canvas first**: chrome stays out of the way; the board is at least 90% of the screen.
+2. **Big and legible**: projector-readable defaults, large touch targets.
+3. **Predictable**: every action is undoable; destructive actions are confirmable.
+4. **Resilient**: never lose work; always show connection state honestly.
+5. **Private by default**: collect nothing you don't need.
+
+### 4.6 Name & Brand
+
+**Name: Inkroom**
+- **Why it fits**: "Ink" is the core interaction (writing and drawing), and "room" matches the product's model: every session is a room you join with a code. It is short, easy to spell and say, and works in many languages' keyboards and scripts for URLs.
+- **Tagline**: *Write together. Teach anywhere.*
+- **One-line description**: "Inkroom is a free, open-source whiteboard for classrooms: open it, share a code, and start teaching."
+- **Voice**: friendly, plain-spoken, teacher-first; no jargon, no growth-hacking.
+- **Identifiers (proposed)**: GitHub org `inkroom`, npm scope `@inkroom`, packages `@inkroom/core`, `@inkroom/ui`, `@inkroom/shared`, Docker image `ghcr.io/<org>/inkroom`, file extension `.inkroom`.
+- **Visual identity direction**: a rounded speech-bubble/room outline containing a single pen stroke; primary color indigo (`#4F46E5`, matching the accent token), with a chalk-white variant for dark and blackboard themes. Wordmark in the UI font (Inter, semi-bold, tight tracking).
+
+**Availability checklist (do before announcing publicly)**
+1. Domain: check `.org`, `.app`, `.io` and a short country-code option. Prefer `.org` or `.app` for an open-source project.
+2. Registries and hosts: npm package and scope, GitHub org/repo, and Docker Hub/GHCR.
+3. Social handles: GitHub, X, LinkedIn page, YouTube, Mastodon/Bluesky.
+4. Trademark: search the relevant registries (e.g. USPTO, EUIPO, WIPO Global Brand Database) for "Inkroom" and close variants in software and education classes. A quick web search found other whiteboard products with similar-sounding names (for example Inko, an iPad whiteboard app), so confirm there is no confusing overlap before committing.
+5. Search-engine test: confirm the name is not dominated by an unrelated, higher-ranking brand.
+
+**Fallback names (same direction, in order of preference)**: **Chalkroom**, **Slateroom**, **Penroom**, **Inkboard**, **Boardwise**. Re-run the checklist for whichever you choose; any name is only final after the trademark check passes.
+
+---
+
+## 5. Architecture Decision Records
+
+| ADR | Decision | Alternatives considered | Rationale | Revisit if |
+|---|---|---|---|---|
+| **01** | **Build on Konva with own data model** | Fork Excalidraw; tldraw SDK | Full control of classroom UX and permissions; no license uncertainty. Excalidraw's hand-drawn identity and architecture are a poor fit for teaching tools; tldraw's SDK license terms for production use must be verified and may conflict with "free, open source" | Spike S-3 shows Konva cannot meet performance budgets |
+| **02** | **Imperative Konva for canvas; React only for UI chrome** | `react-konva` for everything | Avoids React reconciliation overhead per stroke; precise control over layers/caching | Team grows and prefers declarative canvas |
+| **03** | **`perfect-freehand` for stroke outlines; Pointer Events with coalesced events** | Konva `Line` with tension | Pressure-sensitive, smooth strokes; industry-proven approach | Spike S-1 finds latency problems |
+| **04** | **Yjs, one `Y.Doc` per page plus one meta doc per board** | Single doc per board | Lazy-load pages; per-page permissions; smaller docs; enables per-student pages | Overhead of many docs proves problematic |
+| **05** | **Express + Node.js server hosting Hocuspocus; MongoDB (Mongoose) for persistence behind a storage interface; presence via Awareness** | Fastify, SQLite/PostgreSQL, Redis, y-websocket | Matches the owner's MERN expertise (faster delivery, easier maintenance, familiar to many contributors); one database; Hocuspocus attaches to an Express HTTP server; TTL indexes simplify expiry | BSON 16 MB limit or database operations burden becomes a problem (the storage interface allows a PostgreSQL/SQLite adapter); horizontal scaling needed (add Redis extension) |
+| **06** | **`Y.UndoManager` per page doc, local-origin only** | Zustand history | Correct multi-user semantics | n/a |
+| **07** | **Anonymous join with signed room tokens; optional teacher accounts later** | Mandatory accounts | Removes friction and reduces data collected from minors | Institutions demand SSO (post-v1) |
+| **08** | **Assets in S3-compatible storage (local disk adapter for self-host); doc stores references** | Base64 in doc | Keeps docs small and syncing fast | n/a |
+| **09** | **Local-first persistence with `y-indexeddb`** | Server-only persistence | Resilience to network loss; instant load | Storage quotas become a problem |
+| **10** | **Monorepo (pnpm + Turborepo): `web`, `server`, `core`, `ui`, `shared`** | Separate repos | Shared types; single CI | n/a |
+| **11** | **UI stack: Vite, React 18+, TypeScript strict, React Router, TanStack Query (REST data), Tailwind, Radix UI primitives, Lucide icons, Zustand (UI state only)** | Next.js, Create React App (deprecated) | Pure SPA suits a canvas app; Radix gives accessible primitives; TanStack Query keeps REST state out of Zustand | SEO/marketing site needed (build separately) |
+| **12** | **License: MIT** | AGPL-3.0 | Maximizes adoption and contribution | Closed SaaS forks become a real problem |
+| **13** | **MERN + TypeScript (Node.js 22 LTS, ESM, strict mode) across all packages** | Next.js full-stack; Fastify + PostgreSQL | One language and one skill set across web, server and shared packages; large MERN community lowers the barrier for contributors | A hard storage or scaling limit appears that MongoDB cannot meet |
+
+---
+
+## 6. System Architecture
+
+### 6.1 High-Level Diagram
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│                               Client (PWA)                                 │
+│                                                                            │
+│  React UI chrome (toolbar, panels, dialogs)       Zustand (UI state only)  │
+│            │                                              │                │
+│            ▼                                              ▼                │
+│  ┌───────────────────────────────┐        ┌──────────────────────────────┐ │
+│  │  Canvas Engine (imperative)   │◄──────►│  Document Layer (packages/   │ │
+│  │  Konva stage                  │        │  core)                       │ │
+│  │   ├─ Static layer (cached)    │        │   Y.Doc per page + meta doc  │ │
+│  │   ├─ Active layer (live ink)  │        │   Y.UndoManager (local)      │ │
+│  │   └─ UI layer (selection,     │        │   rbush spatial index        │ │
+│  │      cursors, laser)          │        │   y-indexeddb (offline)      │ │
+│  └───────────────────────────────┘        └──────────────┬───────────────┘ │
+└──────────────────────────────────────────────────────────┼─────────────────┘
+                                   WebSocket (Yjs + Awareness)│  HTTPS (REST)
+┌──────────────────────────────────────────────────────────┼─────────────────┐
+│                               Server                      ▼                 │
+│  ┌──────────────────────────────────┐   ┌──────────────────────────────┐   │
+│  │ Hocuspocus (on Express server)   │   │ Express REST API             │   │
+│  │  onAuthenticate (JWT, role)      │   │  /boards  /join  /assets     │   │
+│  │  per-document permissions        │   │  /export (optional)          │   │
+│  │  persistence extension           │   │  rate limiting, validation   │   │
+│  └───────────────┬──────────────────┘   └───────────────┬──────────────┘   │
+│                  ▼                                       ▼                  │
+│        Storage adapter                         Asset storage adapter        │
+│        MongoDB (Mongoose)                      Local disk │ S3/R2/MinIO     │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 6.2 Repository Layout
+
+```
+inkroom/
+├─ apps/
+│  ├─ web/                 # Vite + React SPA (PWA)
+│  └─ server/              # Express + Hocuspocus (Node.js, TypeScript)
+├─ packages/
+│  ├─ core/                # data model, geometry, hit-testing, undo, export (no React)
+│  ├─ ui/                  # design system components (Radix + Tailwind)
+│  └─ shared/              # types, zod schemas, constants, permission matrix
+├─ docker/                 # Dockerfile(s), compose files
+├─ docs/                   # architecture, contributing, self-hosting
+└─ e2e/                    # Playwright multi-client tests
+```
+
+### 6.3 Rendering Pipeline
+
+1. **Input**: Pointer Events (`pointerdown/move/up`) with `getCoalescedEvents()` for full stylus fidelity; `touch-action: none` on the canvas; ignore `pointerType === 'touch'` for ink when a pen is active (palm rejection), and let touch pan/zoom.
+2. **Live ink**: the in-progress stroke renders on the **active layer** only. Points are throttled (about 30 to 60 ms) into Awareness as a draft so peers see ink forming, without writing partial data into the CRDT.
+3. **Commit**: on `pointerup`, simplify points (Ramer–Douglas–Peucker, epsilon scaled by zoom), then insert **one** element into the page doc inside a transaction with the local origin.
+4. **Static layer**: committed elements are rendered through a viewport-culled pass using the **rbush** index; stroke outlines from `perfect-freehand` are cached per element (`Path2D`) and invalidated only on change. When element count is large, rasterize unchanged regions into cached bitmaps.
+5. **Hit-testing and selection**: use rbush for broad-phase and custom distance-to-polyline tests for strokes (Konva's hit graph is too costly for thousands of strokes).
+6. **Eraser**: stroke eraser deletes whole elements intersecting the eraser path (a soft preview highlights what will be removed). Partial erase (splitting strokes) is a post-v1 enhancement.
+
+### 6.4 Collaboration & Sync
+
+- **Documents**: `board:<id>:meta` (title, mode, page list) and `board:<id>:page:<pageId>` (elements). Hocuspocus multiplexes documents over a single WebSocket.
+- **Presence**: Yjs Awareness carries cursor position, display name, color, current tool, live draft stroke, laser trail, raised-hand flag, and viewport (for follow mode).
+- **Undo**: `Y.UndoManager` per page doc, with `trackedOrigins` set to the local user origin. Remote changes are never on the local undo stack.
+- **Offline**: `y-indexeddb` stores each doc locally; on reconnect, Yjs merges automatically. The UI shows connection state honestly (Section 9.6).
+- **Persistence**: Hocuspocus's database extension stores the binary Yjs state in MongoDB (debounced, e.g. 2 s after the last change, max 10 s; storage strategy in 6.6.4). Periodic **restore points** (snapshots) enable teacher "restore earlier version".
+- **Garbage collection**: keep Yjs GC enabled; compact stored state on a schedule.
+
+### 6.5 Roles, Permissions & Trust Model
+
+**Roles**: `teacher` (full control), `co-teacher` (teacher-equivalent, revocable), `student`, `viewer` (read-only link).
+
+**Identity and tokens**
+- Creating a board returns a **teacher secret** placed in the URL **fragment** (`/t/<boardId>#<secret>`) so it never reaches server logs.
+- Students join with a short **room code** (`/b/<code>`, 8 characters, unambiguous alphabet, rate limited).
+- The server exchanges either for a short-lived **JWT** carrying `boardId`, `role`, `participantId`, and display name.
+
+**Board modes** (switchable live by a teacher):
+
+| Mode | Students can | Use |
+|---|---|---|
+| **Present** | View only, follow the teacher's view | Lecturing |
+| **Collaborate** | Draw/edit on shared pages (within limits) | Group work |
+| **Individual** | Draw only on their own private page; teacher sees all | Exercises, tests |
+| **Locked** | View only, nobody can edit | Freeze the board |
+
+**Enforcement (be honest about limits)**
+- Yjs updates are opaque to the server, so **fine-grained rules cannot be fully enforced server-side**. The practical model is:
+  1. **Connection/document-level** enforcement in Hocuspocus: view-only students get read-only connections; in Individual mode each student's write access is limited to their own page document.
+  2. **Client-level** soft rules (e.g. students can only edit their own elements) for UX.
+  3. **Safety nets**: server-side size/rate limits, author attribution on every element, one-click "remove all strokes by this participant", and restore points.
+- Verify during Spike S-2 that connection read-only state can be changed at runtime when a teacher switches modes. If not, fall back to reconnecting clients with a new token.
+
+### 6.6 MERN Stack Implementation Guide
+
+#### 6.6.1 Stack Mapping
+
+| Layer | Choice | Notes |
+|---|---|---|
+| **M**: MongoDB | MongoDB 7+ with Mongoose 8 (or the native driver + zod) | Boards, Yjs state, snapshots, asset metadata; TTL indexes for expiry |
+| **E**: Express | Express 5 with `helmet`, `cors` (allowlist), `express-rate-limit`, `zod`, `pino-http`, `multer`, `sharp` | REST API and the host for the WebSocket upgrade |
+| **R**: React | React 18+, Vite, React Router, TanStack Query, Zustand (UI-only), Radix UI + Tailwind | SPA/PWA; the canvas is imperative Konva, not React-rendered |
+| **N**: Node.js | Node 22 LTS, TypeScript strict, ESM, pnpm workspaces | One language across `web`, `server`, `core`, `shared` |
+| Realtime | Yjs + Hocuspocus attached to the Express HTTP server | Same process in v1; split later if needed |
+
+#### 6.6.2 Server Structure (`apps/server`)
+
+```
+src/
+├─ index.ts            # http server + Express app; WS "upgrade" -> Hocuspocus
+├─ config.ts           # zod-validated environment variables
+├─ db/
+│  ├─ connect.ts       # mongoose connection, index sync
+│  └─ models/          # Board.ts, YDoc.ts, Snapshot.ts, Asset.ts
+├─ realtime/           # hocuspocus.ts: onAuthenticate, permissions, limits, persistence
+├─ routes/             # boards.ts, join.ts, assets.ts, snapshots.ts, health.ts
+├─ services/           # tokens.ts (JWT), roomCodes.ts, images.ts (sharp), cleanup.ts
+├─ middleware/         # rateLimit.ts, validate.ts, auth.ts, errorHandler.ts
+└─ storage/            # AssetStorage interface + local.ts, s3.ts
+```
+
+#### 6.6.3 Bootstrap (Express + Hocuspocus on one server)
+
+```ts
+// apps/server/src/index.ts
+import http from 'node:http';
+import express from 'express';
+import helmet from 'helmet';
+import { WebSocketServer } from 'ws';
+import { Hocuspocus } from '@hocuspocus/server';
+import { Database } from '@hocuspocus/extension-database';
+
+const app = express();
+app.use(helmet());
+app.use(express.json({ limit: '100kb' }));
+
+const server = http.createServer(app);
+const wss = new WebSocketServer({ noServer: true });
+
+const hocuspocus = new Hocuspocus({
+  async onAuthenticate({ token, documentName, connectionConfig }) {
+    const claims = await verifyJwt(token);
+    if (!canAccess(claims, documentName)) throw new Error('forbidden');
+    connectionConfig.readOnly = !canWrite(claims, documentName);
+    return { user: { id: claims.participantId, role: claims.role } };
+  },
+  extensions: [
+    new Database({
+      fetch: async ({ documentName }) => loadYState(documentName),
+      store: async ({ documentName, state }) => saveYState(documentName, state),
+    }),
+  ],
+});
+
+server.on('upgrade', (req, socket, head) => {
+  if (!isAllowedOrigin(req)) return socket.destroy();
+  wss.handleUpgrade(req, socket, head, (ws) => hocuspocus.handleConnection(ws, req));
+});
+
+server.listen(8080);
+```
+
+#### 6.6.4 MongoDB Collections, Indexes and Yjs Persistence
+
+| Collection | Key fields | Indexes / lifecycle |
+|---|---|---|
+| `boards` | `_id` (nanoid), `title`, `roomCode`, `teacherSecretHash`, `coTeacherSecretHashes[]`, `mode`, `settings`, `createdAt`, `lastActiveAt`, `expiresAt` | unique `roomCode`; index on `expiresAt` |
+| `ydocs` | `_id` = document name (`board:<id>:meta` or `board:<id>:page:<pageId>`), `boardId`, `state` (Binary), `bytes`, `updatedAt` | index on `boardId` |
+| `snapshots` | `boardId`, `pageId?`, `state` (Binary), `reason` (`auto` / `manual`), `createdAt` | index on `boardId`; TTL index on `createdAt` |
+| `assets` | `_id`, `boardId`, `kind` (`image` / `pdfpage`), `mime`, `bytes`, `width`, `height`, `storageKey`, `createdAt` | index on `boardId`; blobs live in `AssetStorage` |
+
+---
+
+## 13. DevOps, Deployment & Self-Hosting
+
+- **CI** (GitHub Actions): lint, typecheck, unit, e2e, build, bundle-size check, accessibility, release notes.
+- **Releases**: semantic versioning; Docker images published to GHCR; changelog.
+- **Self-host in one command**:
+  ```yaml
+  services:
+    inkroom:
+      image: ghcr.io/<org>/inkroom:latest
+      ports: ["8080:8080"]
+      environment:
+        - MONGODB_URI=mongodb://mongo:27017/inkroom
+        - ASSET_STORAGE=local
+        - JWT_SECRET=${JWT_SECRET}
+        - ALLOWED_ORIGINS=https://board.example.org
+        - BOARD_RETENTION_DAYS=30
+      volumes: ["./assets:/app/assets"]
+      depends_on: [mongo]
+    mongo:
+      image: mongo:7
+      volumes: ["./mongo-data:/data/db"]
+      restart: unless-stopped
+  ```
+
+---
+
+*End of report.*
