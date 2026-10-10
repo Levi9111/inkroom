@@ -53,7 +53,7 @@ export class CanvasSpatialIndex {
       maxX: bounds.maxX,
       maxY: bounds.maxY,
     });
-    return results.map((r) => r.id);
+    return results.map((r: SpatialItem) => r.id);
   }
 
   public queryPoint(x: number, y: number, radius = 5): string[] {
