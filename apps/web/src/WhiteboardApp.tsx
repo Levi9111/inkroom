@@ -378,7 +378,7 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
   };
 
   return (
-    <div className={`h-screen w-screen overflow-hidden flex flex-col ${theme === 'dark' ? 'theme-dark dark' : theme === 'blackboard' ? 'theme-blackboard' : ''}`}>
+    <div className={`fixed inset-0 overflow-hidden flex flex-col ${theme === 'dark' ? 'theme-dark dark' : theme === 'blackboard' ? 'theme-blackboard' : ''}`}>
       {/* Top Bar Navigation */}
       <TopBar
         title={title}

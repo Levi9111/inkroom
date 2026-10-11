@@ -38,17 +38,24 @@
   --focus-ring: #34D399;
 }
 
-html, body, #root {
-  height: 100%;
+html, body {
+  min-height: 100%;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
+  overflow-x: hidden;
 }
 
-/* Ensure smooth canvas dragging and drawing */
+#root {
+  min-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure smooth canvas dragging and drawing without unwanted touch actions */
 canvas {
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
