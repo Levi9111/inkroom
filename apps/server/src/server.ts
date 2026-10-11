@@ -29,7 +29,13 @@ async function bootstrap() {
       const origin = request.headers.origin;
       const allowed = config.cors_origin;
 
-      if (
+      if (config.NODE_ENV === 'production' && !allowed.includes('*')) {
+        if (!origin || !allowed.includes(origin)) {
+          logger.warn(`Rejected WebSocket upgrade from untrusted origin: ${origin}`);
+          socket.destroy();
+          return;
+        }
+      } else if (
         origin &&
         Array.isArray(allowed) &&
         !allowed.includes('*') &&

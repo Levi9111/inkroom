@@ -14,5 +14,7 @@ services:
         sync: false # Set in Render Dashboard with your MongoDB Atlas URI
       - key: JWT_ACCESS_SECRET
         generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
       - key: CORS_ORIGIN
         sync: false # e.g. https://your-inkroom.vercel.app

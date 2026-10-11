@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import config from '../config';
 import type { JwtClaims } from '@inkroom/shared';
 
@@ -16,13 +17,16 @@ export function verifyParticipantToken(token: string): JwtClaims {
   return jwt.verify(token, config.jwt_access_secret || 'inkroom_jwt_secret') as JwtClaims;
 }
 
-export function hashSecret(secret: string): string {
-  return crypto.createHash('sha256').update(secret).digest('hex');
+export async function hashSecret(secret: string): Promise<string> {
+  return bcrypt.hash(secret, config.bcrypt_salt_rounds || 12);
 }
 
-export function verifySecret(secret: string, hashed: string): boolean {
-  const incomingHash = hashSecret(secret);
-  return crypto.timingSafeEqual(Buffer.from(incomingHash), Buffer.from(hashed));
+export async function verifySecret(secret: string, hashed: string): Promise<boolean> {
+  try {
+    return await bcrypt.compare(secret, hashed);
+  } catch {
+    return false;
+  }
 }
 
 export function generateTeacherSecret(): string {

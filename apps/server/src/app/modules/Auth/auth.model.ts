@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
+import config from '../../config';
 import { TUserRole } from './auth.interface';
 
 export interface IUser {
@@ -41,7 +42,7 @@ userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
     return;
   }
-  this.password = await bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, config.bcrypt_salt_rounds || 12);
 });
 
 userSchema.methods.comparePassword = async function (

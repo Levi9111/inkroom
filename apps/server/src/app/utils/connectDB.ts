@@ -4,6 +4,26 @@ import logger from './logger';
 
 export let isConnected = false;
 
+mongoose.connection.on('connected', () => {
+  isConnected = true;
+  logger.info('MongoDB connected');
+});
+
+mongoose.connection.on('disconnected', () => {
+  isConnected = false;
+  logger.warn('MongoDB disconnected, falling back to memory store');
+});
+
+mongoose.connection.on('reconnected', () => {
+  isConnected = true;
+  logger.info('MongoDB reconnected');
+});
+
+mongoose.connection.on('error', (err) => {
+  isConnected = false;
+  logger.error('MongoDB connection error:', err);
+});
+
 export async function connectDB(): Promise<void> {
   try {
     await mongoose.connect(config.databaseUrl, {

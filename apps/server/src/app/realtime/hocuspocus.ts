@@ -1,10 +1,11 @@
-import { Hocuspocus } from '@hocuspocus/server';
+import { Hocuspocus, type onAuthenticatePayload } from '@hocuspocus/server';
 import { Database } from '@hocuspocus/extension-database';
 import { verifyParticipantToken } from '../utils/tokens';
 import { BoardModel } from '../modules/Board/board.model';
 import { YDocModel, YDocChunkModel } from './ydoc.model';
 import { isConnected } from '../utils/connectDB';
 import { canDraw, type PermissionContext } from '@inkroom/shared';
+import logger from '../utils/logger';
 
 const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB safe chunk limit
 const memoryYDocs = new Map<string, Buffer>();
@@ -25,7 +26,7 @@ export async function loadYState(documentName: string): Promise<Uint8Array | nul
 
       return new Uint8Array(doc.state);
     } catch (err) {
-      console.error(`[Realtime] Failed loading YDoc ${documentName}:`, err);
+      logger.error(`[Realtime] Failed loading YDoc ${documentName}:`, err);
     }
   }
 
@@ -84,7 +85,7 @@ export async function saveYState(documentName: string, state: Uint8Array): Promi
       await BoardModel.findByIdAndUpdate(boardId, { lastActiveAt: new Date() });
       return;
     } catch (err) {
-      console.error(`[Realtime] Failed saving YDoc ${documentName}:`, err);
+      logger.error(`[Realtime] Failed saving YDoc ${documentName}:`, err);
     }
   }
 
@@ -96,14 +97,14 @@ export function createHocuspocusServer(): Hocuspocus {
     debounce: 2000,
     maxDebounce: 10000,
 
-    async onAuthenticate(data: any) {
-      const { token, documentName, connectionConfig } = data;
+    async onAuthenticate(data: onAuthenticatePayload) {
+      const { token, documentName, connection } = data;
       if (!token) {
         return {
           user: {
-            id: 'anon_' + Math.random().toString(36).substring(2, 9),
-            name: 'Teacher',
-            role: 'teacher',
+            id: 'guest_' + Math.random().toString(36).substring(2, 9),
+            name: 'Guest',
+            role: 'student',
           },
         };
       }
@@ -140,9 +141,9 @@ export function createHocuspocusServer(): Hocuspocus {
       };
 
       if (isPageDoc) {
-        connectionConfig.readOnly = !canDraw(permCtx);
+        connection.readOnly = !canDraw(permCtx);
       } else {
-        connectionConfig.readOnly = claims.role !== 'teacher' && claims.role !== 'co-teacher';
+        connection.readOnly = claims.role !== 'teacher' && claims.role !== 'co-teacher';
       }
 
       return {

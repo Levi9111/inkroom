@@ -19,7 +19,7 @@ export const BoardService = {
     }
 
     const teacherSecret = generateTeacherSecret();
-    const teacherSecretHash = hashSecret(teacherSecret);
+    const teacherSecretHash = await hashSecret(teacherSecret);
 
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
@@ -134,7 +134,7 @@ export const BoardService = {
 
     let role: Role = 'student';
     if (teacherSecret && board.teacherSecretHash) {
-      if (verifySecret(teacherSecret, board.teacherSecretHash)) {
+      if (await verifySecret(teacherSecret, board.teacherSecretHash)) {
         role = 'teacher';
       }
     }
