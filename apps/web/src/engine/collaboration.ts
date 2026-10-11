@@ -49,10 +49,21 @@ export class CollaborationClient {
     }
   }
 
-  private connectMetaProvider() {
+  private getWsUrl(): string {
     const envWs = (import.meta as any).env?.VITE_WS_URL || (import.meta as any).env?.VITE_SERVER_URL?.replace(/^http/, 'ws');
-    const defaultWs = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
-    const wsUrl = this.options.serverUrl || envWs || defaultWs;
+    if (this.options.serverUrl) return this.options.serverUrl;
+    if (envWs) return envWs;
+
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocal) {
+      return 'ws://localhost:8080';
+    }
+
+    return (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
+  }
+
+  private connectMetaProvider() {
+    const wsUrl = this.getWsUrl();
 
     this.metaProvider = new HocuspocusProvider({
       url: wsUrl,
@@ -113,9 +124,7 @@ export class CollaborationClient {
       this.activePageProvider.destroy();
     }
 
-    const envWs = (import.meta as any).env?.VITE_WS_URL || (import.meta as any).env?.VITE_SERVER_URL?.replace(/^http/, 'ws');
-    const defaultWs = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + `//${window.location.host}/ws`;
-    const wsUrl = this.options.serverUrl || envWs || defaultWs;
+    const wsUrl = this.getWsUrl();
 
     this.activePageProvider = new HocuspocusProvider({
       url: wsUrl,
