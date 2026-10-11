@@ -16,6 +16,7 @@ export interface CanvasEngineCallbacks {
   onPointerMove?: (x: number, y: number) => void;
   onLaserTrail?: (points: number[]) => void;
   onSelectElement?: (element: CanvasElement | null) => void;
+  onImagePaste?: (file: File) => void;
 }
 
 export class CanvasEngine {
@@ -45,7 +46,9 @@ export class CanvasEngine {
 
   // Laser Pointer State
   private laserPoints: number[] = [];
-  private laserTimer: any = null;
+  private laserTimer: ReturnType<typeof setInterval> | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private cleanupImageHandlers: (() => void) | null = null;
 
   private callbacks: CanvasEngineCallbacks;
 
@@ -75,6 +78,7 @@ export class CanvasEngine {
 
     this.setupPointerEvents();
     this.setupResizeObserver();
+    this.setupImageHandlers();
     this.drawBackground({ type: 'blank', color: '#FFFFFF' });
   }
 
@@ -182,6 +186,28 @@ export class CanvasEngine {
           listening: false,
         })
       );
+    } else if (el.type === 'image') {
+      const imageUrl = (el as any).url || (el as any).src;
+      if (imageUrl) {
+        const imgObj = new window.Image();
+        imgObj.crossOrigin = 'anonymous';
+        imgObj.src = imageUrl;
+        imgObj.onload = () => {
+          layer.add(
+            new Konva.Image({
+              x: el.x,
+              y: el.y,
+              image: imgObj,
+              width: el.width,
+              height: el.height,
+              rotation: el.rotation || 0,
+              opacity: (el as any).opacity ?? 1,
+              listening: false,
+            })
+          );
+          layer.batchDraw();
+        };
+      }
     }
   }
 
@@ -455,19 +481,26 @@ export class CanvasEngine {
       this.activeLayer.batchDraw();
     } else if (this.activeTool === 'laser') {
       // Fade out laser trail
-      clearInterval(this.laserTimer);
+      if (this.laserTimer) {
+        clearInterval(this.laserTimer);
+        this.laserTimer = null;
+      }
       this.laserTimer = setInterval(() => {
         if (this.laserPoints.length <= 2) {
           this.laserPoints = [];
           this.uiLayer.destroyChildren();
           this.uiLayer.batchDraw();
-          clearInterval(this.laserTimer);
+          if (this.laserTimer) {
+            clearInterval(this.laserTimer);
+            this.laserTimer = null;
+          }
         } else {
           this.laserPoints.splice(0, 4);
           this.renderLaserTrail();
         }
       }, 30);
     }
+
   }
 
   private eraseAtPoint(x: number, y: number) {
@@ -568,7 +601,7 @@ export class CanvasEngine {
   }
 
   private setupResizeObserver() {
-    const observer = new ResizeObserver(() => {
+    this.resizeObserver = new ResizeObserver(() => {
       const w = this.container.clientWidth;
       const h = this.container.clientHeight;
       if (w > 0 && h > 0) {
@@ -577,10 +610,67 @@ export class CanvasEngine {
         this.stage.batchDraw();
       }
     });
-    observer.observe(this.container);
+    this.resizeObserver.observe(this.container);
+  }
+
+  private setupImageHandlers() {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault();
+            this.callbacks.onImagePaste?.(file);
+          }
+        }
+      }
+    };
+
+    const container = this.container;
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      const files = e.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+          this.callbacks.onImagePaste?.(file);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    container.addEventListener('dragover', handleDragOver);
+    container.addEventListener('drop', handleDrop);
+
+    this.cleanupImageHandlers = () => {
+      window.removeEventListener('paste', handlePaste);
+      container.removeEventListener('dragover', handleDragOver);
+      container.removeEventListener('drop', handleDrop);
+    };
   }
 
   public destroy() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    if (this.laserTimer) {
+      clearInterval(this.laserTimer);
+      this.laserTimer = null;
+    }
+    if (this.cleanupImageHandlers) {
+      this.cleanupImageHandlers();
+      this.cleanupImageHandlers = null;
+    }
     this.stage.destroy();
   }
 }
+

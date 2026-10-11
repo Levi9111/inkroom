@@ -21,6 +21,7 @@ export class CollaborationClient {
   public readonly boardId: string;
   public readonly metaDocManager: BoardMetaDocManager;
   private pageManagers = new Map<string, PageDocManager>();
+  private pageProviders = new Map<string, HocuspocusProvider>();
   private activePageId: string = 'page_1';
 
   private metaProvider: HocuspocusProvider | null = null;
@@ -44,7 +45,7 @@ export class CollaborationClient {
   private initMetaPersistence() {
     try {
       this.indexedDbMeta = new IndexeddbPersistence(`inkroom:${this.boardId}:meta`, this.metaDocManager.doc);
-    } catch (e) {
+    } catch {
       console.warn('IndexedDB unavailable for meta persistence');
     }
   }
@@ -74,11 +75,13 @@ export class CollaborationClient {
         this.options.onConnectionStatusChange?.(event.status);
       },
       onAwarenessUpdate: ({ states }) => {
-        const awarenessList: AwarenessState[] = states.map((s) => s as unknown as AwarenessState);
+        const awarenessList: AwarenessState[] = states
+          .filter(Boolean)
+          .map((s) => s as unknown as AwarenessState);
         this.options.onAwarenessChange?.(awarenessList);
 
         for (const s of awarenessList) {
-          if (s.user && s.user.id !== this.userId && s.cursor) {
+          if (s?.user && s.user.id !== this.userId && s.cursor) {
             this.options.onRemoteCursorUpdate?.({
               id: s.user.id,
               name: s.user.name,
@@ -109,7 +112,7 @@ export class CollaborationClient {
       // IndexedDB persistence per page
       try {
         new IndexeddbPersistence(`inkroom:${this.boardId}:page:${pageId}`, manager.doc);
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
@@ -120,19 +123,19 @@ export class CollaborationClient {
     this.activePageId = pageId;
     const pageManager = this.getOrCreatePageManager(pageId);
 
-    if (this.activePageProvider) {
-      this.activePageProvider.destroy();
+    let provider = this.pageProviders.get(pageId);
+    if (!provider) {
+      const wsUrl = this.getWsUrl();
+      provider = new HocuspocusProvider({
+        url: wsUrl,
+        name: `board:${this.boardId}:page:${pageId}`,
+        document: pageManager.doc,
+        token: this.options.token,
+      });
+      this.pageProviders.set(pageId, provider);
     }
 
-    const wsUrl = this.getWsUrl();
-
-    this.activePageProvider = new HocuspocusProvider({
-      url: wsUrl,
-      name: `board:${this.boardId}:page:${pageId}`,
-      document: pageManager.doc,
-      token: this.options.token,
-    });
-
+    this.activePageProvider = provider;
     return pageManager;
   }
 
@@ -150,7 +153,10 @@ export class CollaborationClient {
 
   public destroy() {
     this.metaProvider?.destroy();
-    this.activePageProvider?.destroy();
+    this.pageProviders.forEach((p) => p.destroy());
+    this.pageProviders.clear();
+    this.activePageProvider = null;
     this.indexedDbMeta?.destroy();
   }
 }
+
