@@ -56,7 +56,12 @@ export interface ImageEl extends BaseElement {
   height: number;
   alt?: string;
   src?: string;
+  url?: string;
+  opacity?: number;
 }
+
+export type ImageElement = ImageEl;
+
 
 export interface LatexEl extends BaseElement {
   type: 'latex';

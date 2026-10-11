@@ -34,5 +34,8 @@ export default {
   jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN || '12h',
   jwt_refresh_secret: jwtRefreshSecret || 'inkroom_jwt_refresh_secret_dev_123',
   jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  upload_dir: process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads'),
+  public_url: process.env.PUBLIC_URL || `http://localhost:${process.env.PORT ?? 8080}`,
 };
+
 

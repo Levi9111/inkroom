@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { catchAsync } from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { BoardService } from './board.service';
+import config from '../../config';
 
 export const BoardController = {
   createBoard: catchAsync(async (req: Request, res: Response) => {
@@ -64,4 +65,32 @@ export const BoardController = {
       data: result,
     });
   }),
+
+  uploadAsset: catchAsync(async (req: Request, res: Response) => {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'No file uploaded',
+      });
+    }
+
+    const baseUrl = config.public_url.replace(/\/$/, '');
+    const url = `${baseUrl}/uploads/${req.file.filename}`;
+
+    sendResponse(res, {
+      statusCode: StatusCodes.CREATED,
+      success: true,
+      message: 'Asset uploaded successfully',
+      data: {
+        assetId: req.file.filename,
+        url,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        bytes: req.file.size,
+        boardId: id,
+      },
+    });
+  }),
 };
+
