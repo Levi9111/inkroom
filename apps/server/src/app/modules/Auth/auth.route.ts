@@ -32,11 +32,58 @@ const router = express.Router();
  *       401:
  *         description: Invalid credentials
  */
+/**
+ * @openapi
+ * /auth/register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new user account
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: teacher@school.edu
+ *               password:
+ *                 type: string
+ *                 example: SecurePassword123
+ *     responses:
+ *       210:
+ *         description: User registered successfully
+ *       409:
+ *         description: Email already registered
+ */
+router.post(
+  '/register',
+  validateRequest(AuthValidation.registerSchema),
+  AuthControllers.register,
+);
+
 router.post(
   '/login',
   validateRequest(AuthValidation.loginSchema),
   AuthControllers.login,
 );
+
+/**
+ * @openapi
+ * /auth/refresh:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Refresh JWT access token
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *       401:
+ *         description: Invalid or expired refresh token
+ */
+router.post('/refresh', AuthControllers.refreshToken);
+
 
 /**
  * @openapi

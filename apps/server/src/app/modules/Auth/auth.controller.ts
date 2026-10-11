@@ -55,4 +55,56 @@ const getProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const AuthControllers = { login, logout, getProfile };
+const register = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.registerUser(req.body);
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'User registered successfully',
+    data: result,
+  });
+});
+
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const token = req.cookies?.refreshToken || req.body?.refreshToken;
+  if (!token) {
+    sendResponse(res, {
+      statusCode: StatusCodes.UNAUTHORIZED,
+      success: false,
+      message: 'Refresh token is required',
+      data: null,
+    });
+    return;
+  }
+
+  const result = await AuthService.refreshToken(token);
+
+  const isProduction = config.NODE_ENV === 'production';
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'strict' as const,
+    path: '/',
+  };
+
+  res.cookie('accessToken', result.accessToken, {
+    ...cookieOptions,
+    maxAge: 15 * 60 * 1000,
+  });
+  res.cookie('refreshToken', result.refreshToken, {
+    ...cookieOptions,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Token refreshed successfully',
+    data: {
+      accessToken: result.accessToken,
+    },
+  });
+});
+
+export const AuthControllers = { register, login, refreshToken, logout, getProfile };
+

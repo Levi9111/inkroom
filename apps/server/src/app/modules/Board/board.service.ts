@@ -9,6 +9,13 @@ import { isConnected } from '../../utils/connectDB';
 const memoryBoards = new Map<string, any>();
 const memoryRoomCodes = new Map<string, string>(); // roomCode -> boardId
 
+function sanitizeText(str: string, maxLen = 120): string {
+  return (str || '')
+    .replace(/[\u0000-\u001F\u007F]/g, '')
+    .trim()
+    .slice(0, maxLen);
+}
+
 export const BoardService = {
   async createBoard(title: string) {
     const boardId = nanoid(12);
@@ -24,9 +31,11 @@ export const BoardService = {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
+    const cleanTitle = sanitizeText(title) || 'Untitled board';
+
     const boardData = {
       _id: boardId,
-      title: title || 'Untitled board',
+      title: cleanTitle,
       roomCode,
       teacherSecretHash,
       coTeacherSecretHashes: [],
@@ -89,13 +98,52 @@ export const BoardService = {
     };
   },
 
-  async updateBoard(id: string, updates: any) {
+  async updateBoard(
+    id: string,
+    updates: {
+      title?: string;
+      mode?: 'present' | 'collaborate' | 'individual' | 'locked';
+      settings?: {
+        studentsCanUndoOthers?: boolean;
+        allowStudentImages?: boolean;
+        maxElementsPerPage?: number;
+      };
+    }
+  ) {
+    const safeUpdates: Record<string, any> = {};
+    if (updates.title !== undefined) {
+      safeUpdates.title = sanitizeText(updates.title, 120);
+    }
+    if (updates.mode !== undefined) {
+      safeUpdates.mode = updates.mode;
+    }
+    if (updates.settings !== undefined) {
+      safeUpdates.settings = {};
+      if (typeof updates.settings.studentsCanUndoOthers === 'boolean') {
+        safeUpdates.settings.studentsCanUndoOthers = updates.settings.studentsCanUndoOthers;
+      }
+      if (typeof updates.settings.allowStudentImages === 'boolean') {
+        safeUpdates.settings.allowStudentImages = updates.settings.allowStudentImages;
+      }
+      if (typeof updates.settings.maxElementsPerPage === 'number') {
+        safeUpdates.settings.maxElementsPerPage = Math.min(
+          Math.max(100, updates.settings.maxElementsPerPage),
+          50000
+        );
+      }
+    }
+
     if (isConnected) {
-      return await BoardModel.findByIdAndUpdate(id, updates, { new: true }).lean();
+      return await BoardModel.findByIdAndUpdate(id, { $set: safeUpdates }, { new: true }).lean();
     }
     const mem = memoryBoards.get(id);
     if (!mem) return null;
-    const updated = { ...mem, ...updates, updatedAt: new Date() };
+    const updated = {
+      ...mem,
+      ...safeUpdates,
+      settings: { ...mem.settings, ...(safeUpdates.settings || {}) },
+      updatedAt: new Date(),
+    };
     memoryBoards.set(id, updated);
     return updated;
   },
@@ -104,7 +152,8 @@ export const BoardService = {
     if (isConnected) {
       await BoardModel.findByIdAndDelete(id);
       await YDocModel.deleteMany({ boardId: id });
-      await YDocChunkModel.deleteMany({ docId: new RegExp(`^board:${id}:`) });
+      const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      await YDocChunkModel.deleteMany({ docId: new RegExp(`^board:${escapedId}:`) });
     } else {
       const mem = memoryBoards.get(id);
       if (mem) {
@@ -116,6 +165,7 @@ export const BoardService = {
 
   async joinBoard(roomCode: string, name: string, teacherSecret?: string) {
     const cleanCode = sanitizeRoomCode(roomCode);
+    const cleanName = sanitizeText(name, 40) || 'Anonymous';
     let board: any = null;
 
     if (isConnected) {
@@ -145,8 +195,9 @@ export const BoardService = {
       boardId: board._id,
       participantId,
       role,
-      name,
+      name: cleanName,
     });
+
 
     return {
       token,

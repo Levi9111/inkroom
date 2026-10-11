@@ -19,7 +19,7 @@ const BoardSchema = new Schema<IBoard>(
       maxElementsPerPage: { type: Number, default: 20000 },
     },
     lastActiveAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date, index: true },
+    expiresAt: { type: Date, index: { expireAfterSeconds: 0 } },
   },
   { timestamps: true }
 );
