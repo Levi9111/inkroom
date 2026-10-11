@@ -5,6 +5,7 @@
   "scripts": {
     "build": "cem build",
     "start": "cem start",
+    "dev": "cem dev",
     "start:dev": "cem dev",
     "check": "cem check",
     "lint": "eslint src",
