@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import type { CanvasElement, Stroke, Shape, ShapeKind, PageBackground, ID } from '@inkroom/shared';
+import type { AppTheme } from '../stores/uiStore';
 import {
   computeStrokeOutline,
   getSvgPathFromStroke,
@@ -49,6 +50,8 @@ export class CanvasEngine {
   private laserTimer: ReturnType<typeof setInterval> | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private cleanupImageHandlers: (() => void) | null = null;
+  private currentBackground: PageBackground = { type: 'blank', color: '#FFFFFF' };
+  private currentTheme: AppTheme = 'light';
 
   private callbacks: CanvasEngineCallbacks;
 
@@ -211,37 +214,56 @@ export class CanvasEngine {
     }
   }
 
-  public drawBackground(background: PageBackground) {
+  public drawBackground(background: PageBackground, theme: AppTheme = 'light') {
+    this.currentBackground = background;
+    this.currentTheme = theme;
     this.backgroundLayer.destroyChildren();
     const width = this.stage.width() * 4;
     const height = this.stage.height() * 4;
+
+    const isDark = theme === 'dark';
+    const isBlackboard = theme === 'blackboard';
+
+    let bgFill = '#FFFFFF';
+    if (isBlackboard) {
+      bgFill = '#1B3B2B';
+    } else if (isDark) {
+      bgFill = background.type === 'blank' && background.color && background.color !== '#FFFFFF' ? background.color : '#0B0F19';
+    } else {
+      bgFill = background.type === 'blank' && background.color ? background.color : '#FFFFFF';
+    }
 
     const bgRect = new Konva.Rect({
       x: -width / 2,
       y: -height / 2,
       width: width * 2,
       height: height * 2,
-      fill: background.type === 'blank' ? background.color : '#FFFFFF',
+      fill: bgFill,
     });
     this.backgroundLayer.add(bgRect);
+
+    const gridLineColor = isBlackboard
+      ? 'rgba(255, 255, 255, 0.12)'
+      : isDark
+      ? 'rgba(255, 255, 255, 0.10)'
+      : 'rgba(15, 23, 42, 0.08)';
 
     if (background.type === 'grid' || background.type === 'graph') {
       const spacing = background.spacing || 30;
       const gridGroup = new Konva.Group();
-      const lineColor = '#E2E8F0';
 
       for (let x = -width; x <= width; x += spacing) {
-        gridGroup.add(new Konva.Line({ points: [x, -height, x, height], stroke: lineColor, strokeWidth: 1 }));
+        gridGroup.add(new Konva.Line({ points: [x, -height, x, height], stroke: gridLineColor, strokeWidth: 1 }));
       }
       for (let y = -height; y <= height; y += spacing) {
-        gridGroup.add(new Konva.Line({ points: [-width, y, width, y], stroke: lineColor, strokeWidth: 1 }));
+        gridGroup.add(new Konva.Line({ points: [-width, y, width, y], stroke: gridLineColor, strokeWidth: 1 }));
       }
       this.backgroundLayer.add(gridGroup);
     } else if (background.type === 'lined') {
       const spacing = background.spacing || 32;
       const linedGroup = new Konva.Group();
       for (let y = -height; y <= height; y += spacing) {
-        linedGroup.add(new Konva.Line({ points: [-width, y, width, y], stroke: '#E2E8F0', strokeWidth: 1 }));
+        linedGroup.add(new Konva.Line({ points: [-width, y, width, y], stroke: gridLineColor, strokeWidth: 1 }));
       }
       this.backgroundLayer.add(linedGroup);
     }
@@ -253,6 +275,10 @@ export class CanvasEngine {
     const el = this.stage.container();
 
     el.addEventListener('pointerdown', (e: PointerEvent) => {
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {}
+
       // Palm rejection: ignore touch events when stylus was active
       if (e.pointerType === 'touch' && e.pressure === 0 && (this.activeTool === 'pen' || this.activeTool === 'highlighter')) {
         // Allow touch scrolling if not explicitly finger drawing
@@ -274,7 +300,12 @@ export class CanvasEngine {
       }
     });
 
-    const endHandler = () => this.handlePointerUp();
+    const endHandler = (e: PointerEvent) => {
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {}
+      this.handlePointerUp();
+    };
     el.addEventListener('pointerup', endHandler);
     el.addEventListener('pointerleave', endHandler);
     el.addEventListener('pointercancel', endHandler);
@@ -411,6 +442,15 @@ export class CanvasEngine {
         );
       } else if (this.shapeKind === 'line') {
         this.activeLayer.add(new Konva.Line({ points: [startX, startY, x, y], ...shapeProps }));
+      } else if (this.shapeKind === 'arrow') {
+        this.activeLayer.add(
+          new Konva.Arrow({
+            points: [startX, startY, x, y],
+            pointerLength: 10,
+            pointerWidth: 10,
+            ...shapeProps,
+          })
+        );
       }
       this.activeLayer.batchDraw();
     }
@@ -422,10 +462,15 @@ export class CanvasEngine {
     this.callbacks.onUpdateDraft?.(null);
 
     if (this.activeTool === 'pen' || this.activeTool === 'highlighter') {
+      if (this.activePoints.length === 3) {
+        // Synthesize small offset for single dot/tap
+        this.activePoints.push(0.5, 0.5, this.activePoints[2]);
+      }
+
       if (this.activePoints.length >= 6) {
         const origin = this.activeLayer.position();
-        // Simplify stroke points (Ramer-Douglas-Peucker)
-        const simplified = simplifyStrokePoints(this.activePoints, 0.8);
+        // Simplify stroke points (Ramer-Douglas-Peucker) only if more than 2 points
+        const simplified = this.activePoints.length > 6 ? simplifyStrokePoints(this.activePoints, 0.8) : this.activePoints;
 
         const newStroke: Stroke = {
           id: 's_' + Math.random().toString(36).substring(2, 11),
@@ -607,6 +652,7 @@ export class CanvasEngine {
       if (w > 0 && h > 0) {
         this.stage.width(w);
         this.stage.height(h);
+        this.drawBackground(this.currentBackground, this.currentTheme);
         this.stage.batchDraw();
       }
     });

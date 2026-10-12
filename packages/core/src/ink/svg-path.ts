@@ -1,6 +1,16 @@
 export function getSvgPathFromStroke(strokePoints: [number, number][], closed = true): string {
   const len = strokePoints.length;
-  if (len < 4) return '';
+  if (len === 0) return '';
+  if (len === 1) {
+    const [x, y] = strokePoints[0];
+    return `M ${(x - 0.5).toFixed(2)} ${y.toFixed(2)} a 0.5 0.5 0 1 0 1 0 a 0.5 0.5 0 1 0 -1 0`;
+  }
+  if (len === 2) {
+    return `M ${strokePoints[0][0].toFixed(2)},${strokePoints[0][1].toFixed(2)} L ${strokePoints[1][0].toFixed(2)},${strokePoints[1][1].toFixed(2)}${closed ? ' Z' : ''}`;
+  }
+  if (len === 3) {
+    return `M ${strokePoints[0][0].toFixed(2)},${strokePoints[0][1].toFixed(2)} L ${strokePoints[1][0].toFixed(2)},${strokePoints[1][1].toFixed(2)} L ${strokePoints[2][0].toFixed(2)},${strokePoints[2][1].toFixed(2)}${closed ? ' Z' : ''}`;
+  }
 
   let a = strokePoints[0];
   let b = strokePoints[1];
