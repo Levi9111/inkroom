@@ -43,7 +43,6 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 #root {
@@ -69,4 +68,56 @@ canvas {
 .bg-canvas-dots-light {
   background-image: radial-gradient(rgba(15, 23, 42, 0.08) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* ── Subtle Micro-Animations & Dynamic Motion ───────────────────────────── */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(1.06); }
+}
+
+@keyframes laserGlide {
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(130px, -45px); }
+  50% { transform: translate(240px, 40px); }
+  75% { transform: translate(110px, 90px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+@keyframes studentFloat {
+  0% { transform: translate(0px, 0px); }
+  33% { transform: translate(-30px, 40px); }
+  66% { transform: translate(45px, -20px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 8s ease-in-out infinite;
+}
+
+.animate-laser-glide {
+  animation: laserGlide 14s ease-in-out infinite;
+}
+
+.animate-student-float {
+  animation: studentFloat 16s ease-in-out infinite;
+}
+
+.interactive-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.interactive-hover:hover {
+  transform: translateY(-2px);
+}
+.interactive-hover:active {
+  transform: translateY(0px);
 }

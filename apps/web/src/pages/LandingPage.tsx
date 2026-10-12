@@ -75,14 +75,14 @@ export function LandingPage() {
       {/* Background ambient lighting & grid */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute inset-0 bg-canvas-dots-light dark:bg-canvas-dots opacity-60" />
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-indigo-600/10 dark:bg-indigo-600/15 blur-[140px] rounded-full" />
-        <div className="absolute top-1/3 -left-48 w-[600px] h-[550px] bg-purple-600/5 dark:bg-purple-600/10 blur-[150px] rounded-full" />
-        <div className="absolute bottom-1/4 right-0 w-[600px] h-[500px] bg-emerald-600/5 dark:bg-emerald-600/10 blur-[160px] rounded-full" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-indigo-600/10 dark:bg-indigo-600/15 blur-[140px] rounded-full animate-pulse-slow" />
+        <div className="absolute top-1/3 -left-48 w-[600px] h-[550px] bg-purple-600/5 dark:bg-purple-600/10 blur-[150px] rounded-full animate-float-slow" />
+        <div className="absolute bottom-1/4 right-0 w-[600px] h-[500px] bg-emerald-600/5 dark:bg-emerald-600/10 blur-[160px] rounded-full animate-pulse-slow" />
       </div>
 
-      {/* Global Navigation Bar */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-white/[0.08] bg-white/80 dark:bg-slate-950/75 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between">
+      {/* Global Navigation Bar: Fixed & Taller with Blur */}
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/90 dark:border-white/[0.08] bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-xs transition-colors">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo & Live Status */}
           <div className="flex items-center gap-6">
             <a href="/" className="flex items-center gap-3 group">
@@ -100,9 +100,12 @@ export function LandingPage() {
               </div>
             </a>
 
-            <div className="hidden lg:flex items-center gap-2 pl-4 border-l border-white/10">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs text-slate-400 font-medium">Yjs CRDT Engine • Zero Latency</span>
+            <div className="hidden lg:flex items-center gap-2.5 pl-4 border-l border-slate-200 dark:border-white/10">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Yjs CRDT Engine • Zero Latency</span>
             </div>
           </div>
 
@@ -118,17 +121,17 @@ export function LandingPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="p-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100/80 dark:bg-white/[0.03] hover:bg-slate-200/80 dark:hover:bg-white/[0.06] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition"
+              className="p-2.5 rounded-lg border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100/80 dark:bg-white/[0.03] hover:bg-slate-200/80 dark:hover:bg-white/[0.06] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-45" /> : <Moon className="w-4 h-4 text-indigo-500 transition-transform hover:rotate-12" />}
             </button>
 
             <a
               href="https://github.com/Levi9111/inkroom"
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100/80 dark:bg-white/[0.03] hover:bg-slate-200/80 dark:hover:bg-white/[0.06] transition"
+              className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100/80 dark:bg-white/[0.03] hover:bg-slate-200/80 dark:hover:bg-white/[0.06] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
             >
               <Github className="w-3.5 h-3.5" />
               <span>GitHub</span>
@@ -136,7 +139,7 @@ export function LandingPage() {
 
             <button
               onClick={() => setIsJoinModalOpen(true)}
-              className="text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100/80 dark:bg-slate-900/60 hover:bg-slate-200/80 dark:hover:bg-slate-800 transition shadow-sm"
+              className="text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white px-4 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100/80 dark:bg-slate-900/60 hover:bg-slate-200/80 dark:hover:bg-slate-800 transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-xs"
             >
               Enter Code
             </button>
@@ -144,7 +147,7 @@ export function LandingPage() {
             <button
               onClick={() => handleCreate()}
               disabled={isCreating}
-              className="text-xs font-bold text-white px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition shadow-lg shadow-indigo-600/25 flex items-center gap-1.5 disabled:opacity-50"
+              className="text-xs font-bold text-white px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-md shadow-indigo-600/25 flex items-center gap-1.5 disabled:opacity-50"
             >
               <span>Instant Board</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -154,7 +157,7 @@ export function LandingPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-16 pb-24 flex flex-col items-center">
+      <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-32 pb-24 flex flex-col items-center">
         {/* Hero Section */}
         <div className="text-center max-w-4xl mx-auto space-y-6 mb-12">
           {/* Announcement Badge */}
@@ -178,7 +181,7 @@ export function LandingPage() {
           <div className="pt-2 max-w-2xl mx-auto w-full">
             <form
               onSubmit={handleCreate}
-              className="relative rounded-2xl border border-white/15 bg-slate-900/80 p-2 backdrop-blur-2xl shadow-2xl shadow-indigo-950/40 flex flex-col sm:flex-row items-center gap-2 group focus-within:border-indigo-500/60 transition-all"
+              className="relative rounded-xl border border-slate-200 dark:border-white/15 bg-white/90 dark:bg-slate-900/80 p-2 backdrop-blur-2xl shadow-xl shadow-indigo-950/10 dark:shadow-indigo-950/40 flex flex-col sm:flex-row items-center gap-2 group focus-within:border-indigo-500/60 transition-all"
             >
               <div className="relative flex-1 w-full pl-3 pr-2 py-1">
                 <input
@@ -187,7 +190,7 @@ export function LandingPage() {
                   value={boardTitle}
                   onChange={(e) => setBoardTitle(e.target.value)}
                   maxLength={100}
-                  className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+                  className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
                 />
               </div>
 
@@ -195,7 +198,7 @@ export function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setIsJoinModalOpen(true)}
-                  className="w-full sm:w-auto px-4 py-3 rounded-xl border border-white/10 hover:border-white/20 bg-slate-800/80 hover:bg-slate-700/80 text-xs font-semibold text-slate-300 hover:text-white transition whitespace-nowrap"
+                  className="w-full sm:w-auto px-4 py-3 rounded-lg border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 whitespace-nowrap"
                 >
                   Join with Code
                 </button>
@@ -203,7 +206,7 @@ export function LandingPage() {
                 <button
                   type="submit"
                   disabled={isCreating}
-                  className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
+                  className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-6 py-3 rounded-lg transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-md shadow-indigo-600/25 flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
                 >
                   {isCreating ? (
                     <>
@@ -221,7 +224,7 @@ export function LandingPage() {
             </form>
 
             {createError && (
-              <div className="mt-3 p-3 rounded-xl bg-rose-950/40 border border-rose-800/50 text-rose-300 text-xs text-center">
+              <div className="mt-3 p-3 rounded-lg bg-rose-950/40 border border-rose-800/50 text-rose-300 text-xs text-center">
                 {createError}
               </div>
             )}
@@ -244,10 +247,10 @@ export function LandingPage() {
         </div>
 
         {/* Hero Centerpiece: Simulated Interactive Whiteboard Stage */}
-        <section id="preview" className="w-full max-w-5xl mx-auto my-12 scroll-mt-24">
-          <div className="relative rounded-3xl border border-white/15 bg-slate-900/50 backdrop-blur-2xl shadow-2xl overflow-hidden">
+        <section id="preview" className="w-full max-w-5xl mx-auto my-12 scroll-mt-28">
+          <div className="relative rounded-xl border border-slate-200 dark:border-white/15 bg-white/80 dark:bg-slate-900/50 backdrop-blur-2xl shadow-2xl overflow-hidden">
             {/* Interactive Stage Header & Toolbar Controls */}
-            <div className="px-5 py-3.5 border-b border-white/10 bg-slate-950/80 flex flex-wrap items-center justify-between gap-4">
+            <div className="px-5 py-3.5 border-b border-slate-200/80 dark:border-white/10 bg-slate-100/80 dark:bg-slate-950/80 flex flex-wrap items-center justify-between gap-4">
               {/* Window Dots & Board Meta */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
@@ -372,8 +375,8 @@ export function LandingPage() {
                 </div>
               </div>
 
-              {/* Simulated Participant Cursor 1: Teacher */}
-              <div className="absolute top-[215px] left-[280px] z-20 flex flex-col items-start pointer-events-none transition-all duration-700">
+              {/* Simulated Participant Cursor 1: Teacher (Active Animated Laser Trail) */}
+              <div className="absolute top-[215px] left-[280px] z-20 flex flex-col items-start pointer-events-none transition-all duration-700 animate-laser-glide">
                 <MousePointer2 className="w-5 h-5 text-rose-500 fill-rose-500 drop-shadow-md -rotate-45" />
                 <div className="ml-3 -mt-1 px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-bold text-[10px] shadow-lg flex items-center gap-1">
                   <Radio className="w-2.5 h-2.5 animate-pulse" />
@@ -381,8 +384,8 @@ export function LandingPage() {
                 </div>
               </div>
 
-              {/* Simulated Participant Cursor 2: Student */}
-              <div className="absolute top-[320px] left-[520px] z-20 flex flex-col items-start pointer-events-none transition-all duration-700">
+              {/* Simulated Participant Cursor 2: Student (Animated Glide) */}
+              <div className="absolute top-[320px] left-[520px] z-20 flex flex-col items-start pointer-events-none transition-all duration-700 animate-student-float">
                 <MousePointer2 className="w-5 h-5 text-emerald-400 fill-emerald-400 drop-shadow-md -rotate-45" />
                 <div className="ml-3 -mt-1 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-semibold text-[10px] shadow-lg">
                   Jordan Rivera (Student)
@@ -398,40 +401,40 @@ export function LandingPage() {
               </div>
 
               {/* Floating Tool Dock Simulation */}
-              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 px-2.5 py-2 rounded-2xl border border-white/15 bg-slate-900/90 backdrop-blur-xl shadow-2xl">
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 px-2 py-1.5 rounded-xl border border-slate-200/90 dark:border-white/15 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl shadow-2xl">
                 <button
                   onClick={() => setPreviewActiveTool('pen')}
-                  className={`p-2 rounded-xl transition ${previewActiveTool === 'pen' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-2 rounded-lg transition-all duration-150 active:scale-95 ${previewActiveTool === 'pen' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
                   title="Pen (P)"
                 >
                   <PenTool className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPreviewActiveTool('highlighter')}
-                  className={`p-2 rounded-xl transition ${previewActiveTool === 'highlighter' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-2 rounded-lg transition-all duration-150 active:scale-95 ${previewActiveTool === 'highlighter' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
                   title="Highlighter (H)"
                 >
                   <Highlighter className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPreviewActiveTool('shapes')}
-                  className={`p-2 rounded-xl transition ${previewActiveTool === 'shapes' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-2 rounded-lg transition-all duration-150 active:scale-95 ${previewActiveTool === 'shapes' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
                   title="Shapes (S)"
                 >
                   <Square className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setPreviewActiveTool('laser')}
-                  className={`p-2 rounded-xl transition ${previewActiveTool === 'laser' ? 'bg-rose-600 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                  className={`p-2 rounded-lg transition-all duration-150 active:scale-95 ${previewActiveTool === 'laser' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
                   title="Laser Pointer (L)"
                 >
                   <Radio className="w-4 h-4" />
                 </button>
-                <div className="h-5 w-[1px] bg-white/10 mx-1" />
-                <button className="p-2 rounded-xl text-slate-400 hover:text-white transition" title="Undo (Ctrl+Z)">
+                <div className="h-5 w-[1px] bg-slate-200 dark:bg-white/10 mx-1" />
+                <button className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-all duration-150 active:scale-95" title="Undo (Ctrl+Z)">
                   <Undo2 className="w-4 h-4" />
                 </button>
-                <button className="p-2 rounded-xl text-slate-400 hover:text-white transition" title="Export">
+                <button className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-all duration-150 active:scale-95" title="Export">
                   <Download className="w-4 h-4" />
                 </button>
               </div>
@@ -455,106 +458,106 @@ export function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Bento Card 1 (Large - 2 cols): Teacher Command & Control */}
-            <div className="md:col-span-2 rounded-3xl border border-white/10 bg-gradient-to-b from-indigo-950/20 via-slate-900/40 to-slate-900/60 p-8 backdrop-blur-xl relative overflow-hidden group hover:border-indigo-500/40 transition-all flex flex-col justify-between">
+            <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-gradient-to-b dark:from-indigo-950/20 dark:via-slate-900/40 dark:to-slate-900/60 p-8 backdrop-blur-xl relative overflow-hidden group hover:border-indigo-500/40 interactive-hover flex flex-col justify-between shadow-xs">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-indigo-600/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <Presentation className="w-6 h-6" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Teacher Command & Classroom Moderation
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
                     Switch between <strong>Present Mode</strong> (locks canvas for lecture explanation) and <strong>Collaborative Mode</strong> (students solve problems together). Manage student hand-raising queues and clear accidental strokes with teacher authority.
                   </p>
                 </div>
               </div>
 
               {/* Sub-feature Badges */}
-              <div className="pt-6 mt-6 border-t border-white/10 grid sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-slate-950/50 border border-white/5 space-y-1">
-                  <span className="font-semibold text-indigo-300">Laser Pointer</span>
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 grid sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">Laser Pointer</span>
                   <p className="text-[11px] text-slate-500">Decaying light trails highlight key steps without cluttering the board.</p>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/50 border border-white/5 space-y-1">
-                  <span className="font-semibold text-indigo-300">Raise Hand Queue</span>
+                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">Raise Hand Queue</span>
                   <p className="text-[11px] text-slate-500">Live student notifications with count badges in the top navigation bar.</p>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/50 border border-white/5 space-y-1">
-                  <span className="font-semibold text-indigo-300">Follow Teacher</span>
+                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">Follow Teacher</span>
                   <p className="text-[11px] text-slate-500">Keep all student screens focused on the exact slide and viewport you teach.</p>
                 </div>
               </div>
             </div>
 
             {/* Bento Card 2 (1 col): Local-First Offline Resilience */}
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-xl relative group hover:border-amber-500/30 transition-all flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/50 p-8 backdrop-blur-xl relative group hover:border-amber-500/40 interactive-hover flex flex-col justify-between shadow-xs">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-600/20 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-amber-600/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                   <WifiOff className="w-6 h-6" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Zero-Loss Offline Persistence
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                     Powered by local IndexedDB. If classroom Wi-Fi hiccups or drops, your handwriting stays intact and automatically re-synchronizes the instant connection is restored.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-white/10 text-xs text-slate-400 flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-400" />
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <Activity className="w-4 h-4 text-emerald-500" />
                 <span>Automatic background reconnection</span>
               </div>
             </div>
 
             {/* Bento Card 3 (1 col): Fluid Pressure Ink Engine */}
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-8 backdrop-blur-xl relative group hover:border-emerald-500/30 transition-all flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/50 p-8 backdrop-blur-xl relative group hover:border-emerald-500/40 interactive-hover flex flex-col justify-between shadow-xs">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-emerald-600/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <PenTool className="w-6 h-6" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Pressure Ink & Clipboard Pasting
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                     Smooth velocity-interpolated freehand lines, translucent highlighters, geometric snapping for diagrams, and direct image pasting from your system clipboard.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-white/10 text-xs text-slate-400 flex items-center gap-2">
-                <span className="font-mono text-emerald-400 text-xs font-bold">60+ FPS</span>
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 text-xs font-bold">60+ FPS</span>
                 <span>Hardware-accelerated Konva 2D stage</span>
               </div>
             </div>
 
             {/* Bento Card 4 (Large - 2 cols): Open Formats & Vector Export */}
-            <div className="md:col-span-2 rounded-3xl border border-white/10 bg-gradient-to-b from-purple-950/20 via-slate-900/40 to-slate-900/60 p-8 backdrop-blur-xl relative group hover:border-purple-500/30 transition-all flex flex-col justify-between">
+            <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-gradient-to-b dark:from-purple-950/20 dark:via-slate-900/40 dark:to-slate-900/60 p-8 backdrop-blur-xl relative group hover:border-purple-500/40 interactive-hover flex flex-col justify-between shadow-xs">
               <div className="space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-purple-600/15 border border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
                   <FileCode2 className="w-6 h-6" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-xl font-bold text-white tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Vector Export & Open Document Portability
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed max-w-xl">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
                     Never lose your lecture material to proprietary closed platforms. Export entire multi-page lecture notes to resolution-independent SVG vector graphics, presentation PNGs, or raw <code>.inkroom</code> bundle files.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-white/10 flex flex-wrap items-center gap-3 text-xs">
-                <span className="px-3 py-1.5 rounded-lg bg-slate-950/60 border border-white/10 text-slate-300 font-mono font-semibold">
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-3 text-xs">
+                <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-mono font-semibold">
                   .SVG Vector Export
                 </span>
-                <span className="px-3 py-1.5 rounded-lg bg-slate-950/60 border border-white/10 text-slate-300 font-mono font-semibold">
+                <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-mono font-semibold">
                   .PNG High-DPI Slide
                 </span>
-                <span className="px-3 py-1.5 rounded-lg bg-slate-950/60 border border-white/10 text-slate-300 font-mono font-semibold">
+                <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-mono font-semibold">
                   .inkroom JSON Document
                 </span>
               </div>
@@ -563,82 +566,82 @@ export function LandingPage() {
         </section>
 
         {/* Keyboard Shortcuts & Technical Architecture Specifications */}
-        <section id="shortcuts" className="w-full max-w-6xl mx-auto py-16 scroll-mt-24">
+        <section id="shortcuts" className="w-full max-w-6xl mx-auto py-16 scroll-mt-28">
           <div className="grid md:grid-cols-2 gap-8 items-start">
             {/* Keyboard Shortcuts Table */}
-            <div className="rounded-3xl border border-white/10 bg-slate-900/40 p-8 backdrop-blur-xl space-y-6">
+            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/40 p-8 backdrop-blur-xl space-y-6 shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center text-slate-300">
+                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-700 dark:text-slate-300">
                   <Command className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Keyboard-First Productivity</h3>
-                  <p className="text-xs text-slate-400">Control tools and navigation rapidly during lectures</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Keyboard-First Productivity</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Control tools and navigation rapidly during lectures</p>
                 </div>
               </div>
 
               <div className="space-y-2.5 text-xs">
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-slate-300">Pen Drawing Tool</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 font-mono text-slate-200">P</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                  <span className="text-slate-600 dark:text-slate-300">Pen Drawing Tool</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">P</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-slate-300">Highlighter Marker</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 font-mono text-slate-200">H</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                  <span className="text-slate-600 dark:text-slate-300">Highlighter Marker</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">H</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-slate-300">Geometric Shapes</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 font-mono text-slate-200">S</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                  <span className="text-slate-600 dark:text-slate-300">Geometric Shapes</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">S</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-slate-300">Teacher Laser Pointer</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 font-mono text-slate-200">L</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                  <span className="text-slate-600 dark:text-slate-300">Teacher Laser Pointer</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">L</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-white/5">
-                  <span className="text-slate-300">Pan Canvas</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 font-mono text-slate-200">Space + Drag</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                  <span className="text-slate-600 dark:text-slate-300">Pan Canvas</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">Space + Drag</kbd>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-slate-300">Undo Stroke</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 font-mono text-slate-200">Ctrl + Z</kbd>
+                  <span className="text-slate-600 dark:text-slate-300">Undo Stroke</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">Ctrl + Z</kbd>
                 </div>
               </div>
             </div>
 
             {/* Architecture Specs */}
-            <div id="architecture" className="rounded-3xl border border-white/10 bg-slate-900/40 p-8 backdrop-blur-xl space-y-6 scroll-mt-24">
+            <div id="architecture" className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/40 p-8 backdrop-blur-xl space-y-6 scroll-mt-28 shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                   <Activity className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Technical Architecture</h3>
-                  <p className="text-xs text-slate-400">Open-source foundations built for reliability</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Technical Architecture</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Open-source foundations built for reliability</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
-                  <span className="text-2xl font-black text-white">&lt; 15 ms</span>
-                  <p className="text-xs font-semibold text-indigo-400">CRDT Sync Latency</p>
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">&lt; 15 ms</span>
+                  <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">CRDT Sync Latency</p>
                   <p className="text-[11px] text-slate-500">Binary WebSocket payloads via Hocuspocus</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
-                  <span className="text-2xl font-black text-white">Zero</span>
-                  <p className="text-xs font-semibold text-emerald-400">Accounts Required</p>
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">Zero</span>
+                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Accounts Required</p>
                   <p className="text-[11px] text-slate-500">Anonymous session tokens with role claims</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
-                  <span className="text-2xl font-black text-white">100%</span>
-                  <p className="text-xs font-semibold text-purple-400">Open Source</p>
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">100%</span>
+                  <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">Open Source</p>
                   <p className="text-[11px] text-slate-500">Permissive MIT License on GitHub</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
-                  <span className="text-2xl font-black text-white">Local-First</span>
-                  <p className="text-xs font-semibold text-amber-400">IndexedDB Cache</p>
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white">Local-First</span>
+                  <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">IndexedDB Cache</p>
                   <p className="text-[11px] text-slate-500">Never lose a drawing on network disconnect</p>
                 </div>
               </div>

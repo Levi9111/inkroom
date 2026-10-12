@@ -67,8 +67,8 @@ export function BoardPage({ roomCode, boardId, teacherHash }: BoardPageProps) {
   if (error) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-rose-900/40 rounded-3xl p-8 max-w-md w-full text-center space-y-5 shadow-2xl">
-          <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-500 flex items-center justify-center mx-auto text-2xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-rose-900/40 rounded-xl p-8 max-w-md w-full text-center space-y-5 shadow-2xl">
+          <div className="w-12 h-12 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-500 flex items-center justify-center mx-auto text-xl">
             ⚠️
           </div>
           <div>
@@ -81,7 +81,7 @@ export function BoardPage({ roomCode, boardId, teacherHash }: BoardPageProps) {
                 clearSession();
                 window.location.href = '/';
               }}
-              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-semibold py-3 rounded-xl text-sm transition"
+              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-semibold py-3 rounded-lg text-sm transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-sm"
             >
               Back to Home
             </button>

@@ -68,7 +68,7 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
 
   return (
     <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 p-8 max-w-md w-full space-y-6 relative overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200/80 dark:border-slate-800 p-8 max-w-md w-full space-y-6 relative overflow-hidden transition-colors">
         {/* Subtle accent gradient bar */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
@@ -96,7 +96,7 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                 maxLength={16}
-                className="w-full bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 rounded-2xl px-4 py-3 text-sm font-mono tracking-widest uppercase transition outline-none"
+                className="w-full bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg px-4 py-3 text-sm font-mono tracking-widest uppercase transition outline-none"
               />
             </div>
           )}
@@ -112,12 +112,12 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={40}
-              className="w-full bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 rounded-2xl px-4 py-3 text-sm transition outline-none"
+              className="w-full bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg px-4 py-3 text-sm transition outline-none"
             />
           </div>
 
           {error && (
-            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
               <span className="text-sm">⚠️</span>
               <span>{error}</span>
             </div>
@@ -127,14 +127,14 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
             <button
               type="button"
               onClick={handleClose}
-              className="w-1/3 py-3 px-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              className="w-1/3 py-3 px-4 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !name.trim() || (!initialRoomCode && !roomCode.trim())}
-              className="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-2xl text-sm transition shadow-lg shadow-indigo-600/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-lg text-sm transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 shadow-md shadow-indigo-600/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

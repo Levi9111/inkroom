@@ -54,7 +54,7 @@ export const ToolDock: React.FC<ToolDockProps> = ({
   ];
 
   return (
-    <div className="fixed left-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1.5 p-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/90 rounded-2xl shadow-xl transition-all">
+    <div className="fixed left-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 p-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 rounded-xl shadow-xl shadow-slate-950/5 dark:shadow-black/40 transition-all duration-200">
       {/* Select Tool */}
       <IconButton
         label="Select"
@@ -171,7 +171,7 @@ export const ToolDock: React.FC<ToolDockProps> = ({
         <button
           onClick={() => setPropertiesOpen(!isPropertiesOpen)}
           aria-label="Color and Stroke Properties"
-          className="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-150 active:scale-95 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           title="Color & stroke thickness"
         >
           <div

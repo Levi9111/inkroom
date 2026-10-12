@@ -25,7 +25,7 @@ export const PropertiesPopover: React.FC<PropertiesPopoverProps> = ({ onClose })
   const currentWidth = isHighlighter ? highlighterWidth : strokeWidth;
 
   return (
-    <div className="absolute left-16 top-0 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-4 z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+    <div className="absolute left-16 top-0 w-64 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-4 z-50 animate-in fade-in-0 zoom-in-95 duration-150">
       {/* Header */}
       <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-100 dark:border-slate-800">
         <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
@@ -52,10 +52,10 @@ export const PropertiesPopover: React.FC<PropertiesPopoverProps> = ({ onClose })
               <button
                 key={color.hex}
                 onClick={() => setColor(color.hex)}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
                   isSelected
                     ? 'ring-2 ring-indigo-500 ring-offset-2 scale-105 shadow-md'
-                    : 'hover:scale-105'
+                    : 'hover:scale-105 active:scale-95'
                 }`}
                 style={{ backgroundColor: color.hex }}
                 title={color.name}
@@ -81,7 +81,7 @@ export const PropertiesPopover: React.FC<PropertiesPopoverProps> = ({ onClose })
         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
           Size Presets
         </label>
-        <div className="grid grid-cols-4 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+        <div className="grid grid-cols-4 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
           {(['S', 'M', 'L', 'XL'] as const).map((preset) => {
             const widthVal = STROKE_WIDTH_PRESETS[preset];
             const isSelected = currentWidth === widthVal;
