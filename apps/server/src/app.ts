@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import fs from 'fs';
+import path from 'path';
 import config from './app/config';
 import logger from './app/utils/logger';
 import { cemWelcomePage } from './app/utils/welcomePage';
@@ -17,6 +18,10 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler.middleware'
 const app: Application = express();
 
 app.disable('x-powered-by');
+
+// ── Static Web Frontend (SPA) ────────────────────────────────────────────────
+const webDistPath = path.resolve(process.cwd(), 'apps/web/dist');
+const hasWebDist = fs.existsSync(webDistPath);
 
 // ── Global Middlewares ────────────────────────────────────────────────────────
 app.use(
@@ -52,14 +57,21 @@ app.use(
   })
 );
 
+if (hasWebDist) {
+  app.use(express.static(webDistPath));
+}
 
 // ── API Documentation ─────────────────────────────────────────────────────────
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 app.get('/', (_req: Request, res: Response): void => {
-  res.setHeader('Content-Type', 'text/html');
-  res.send(cemWelcomePage());
+  if (hasWebDist) {
+    res.sendFile(path.join(webDistPath, 'index.html'));
+  } else {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(cemWelcomePage());
+  }
 });
 
 // ── Health Check ──────────────────────────────────────────────────────────────
@@ -76,6 +88,21 @@ app.get('/health', (_req: Request, res: Response): void => {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/v1', router);
+
+// ── SPA Fallback for Client-Side Routing (/b/:roomCode, /t/:boardId) ──────────
+if (hasWebDist) {
+  app.get('*', (req: Request, res: Response, next) => {
+    if (
+      req.path.startsWith('/api') ||
+      req.path.startsWith('/docs') ||
+      req.path.startsWith('/uploads') ||
+      req.path.startsWith('/health')
+    ) {
+      return next();
+    }
+    res.sendFile(path.join(webDistPath, 'index.html'));
+  });
+}
 
 // ── Error Handlers (must be last) ────────────────────────────────────────────
 app.use(notFound);

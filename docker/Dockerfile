@@ -24,4 +24,4 @@ COPY --from=builder /app/apps/web/dist ./apps/web/dist
 
 EXPOSE 8080
 
-CMD ["node", "apps/server/dist/index.js"]
+CMD ["node", "apps/server/dist/server.js"]
