@@ -1,25 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
   <defs>
-    <linearGradient id="facet-top" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#818CF8" />
+    <linearGradient id="prism-top" x1="12" y1="8" x2="36" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8" />
       <stop offset="100%" stop-color="#6366F1" />
     </linearGradient>
-    <linearGradient id="facet-left" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="prism-left" x1="10" y1="20" x2="24" y2="40" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#4F46E5" />
-      <stop offset="100%" stop-color="#3730A3" />
+      <stop offset="100%" stop-color="#312E81" />
     </linearGradient>
-    <linearGradient id="facet-right" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#A855F7" />
-      <stop offset="100%" stop-color="#6B21A8" />
+    <linearGradient id="prism-right" x1="24" y1="20" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+    <linearGradient id="prism-accent" x1="16" y1="16" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F43F5E" />
+      <stop offset="100%" stop-color="#FB7185" />
     </linearGradient>
   </defs>
-  <!-- Top Facet -->
-  <path d="M16 3 L27 9.5 L16 16 L5 9.5 Z" fill="url(#facet-top)" />
-  <!-- Left Facet -->
-  <path d="M5 9.5 L16 16 L16 29 L5 22.5 Z" fill="url(#facet-left)" />
-  <!-- Right Facet -->
-  <path d="M16 16 L27 9.5 L27 22.5 L16 29 Z" fill="url(#facet-right)" />
-  <!-- Modern eraser angle ribbon accent -->
-  <path d="M5 16 L16 22.5 L16 25 L5 18.5 Z" fill="#38BDF8" opacity="0.85" />
-  <path d="M16 22.5 L27 16 L27 18.5 L16 25 Z" fill="#06B6D4" opacity="0.85" />
+
+  <!-- Isometric Facet 1: Top Diamond Plane -->
+  <path
+    d="M24 6L38 14L24 22L10 14L24 6Z"
+    fill="url(#prism-top)"
+  />
+
+  <!-- Isometric Facet 2: Left Side Face -->
+  <path
+    d="M10 14L24 22V38L10 30V14Z"
+    fill="url(#prism-left)"
+  />
+
+  <!-- Isometric Facet 3: Right Side Face -->
+  <path
+    d="M24 22L38 14V30L24 38V22Z"
+    fill="url(#prism-right)"
+  />
+
+  <!-- Vibrant Eraser Core Highlight: Folded Inner Chevron Strip -->
+  <path
+    d="M24 16L31 20L24 24L17 20L24 16Z"
+    fill="#FFFFFF"
+    fill-opacity="0.85"
+  />
+  <path
+    d="M17 20L24 24V32L17 28V20Z"
+    fill="url(#prism-accent)"
+  />
+  <path
+    d="M24 24L31 20V28L24 32V24Z"
+    fill="#E11D48"
+  />
 </svg>
