@@ -3,6 +3,8 @@ import { joinBoard } from '../api/boardApi';
 import { useBoardStore } from '../stores/boardStore';
 import { useUIStore } from '../stores/uiStore';
 
+import { InkroomLogo } from './InkroomLogo';
+
 interface JoinModalProps {
   roomCode?: string;
   onSuccess?: () => void;
@@ -65,17 +67,17 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 max-w-md w-full space-y-6 relative overflow-hidden">
+    <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 p-8 max-w-md w-full space-y-6 relative overflow-hidden transition-colors">
         {/* Subtle accent gradient bar */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
-        <div className="text-center space-y-2 pt-2">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center mx-auto text-xl font-bold shadow-sm">
-            ✍️
+        <div className="text-center space-y-3 pt-2">
+          <div className="flex justify-center">
+            <InkroomLogo size={44} />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Join Classroom</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Join Classroom</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {initialRoomCode
               ? `Entering classroom ${initialRoomCode}`
               : 'Enter your room code and name to collaborate in real-time'}
@@ -85,7 +87,7 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
         <form onSubmit={handleJoin} className="space-y-4">
           {!initialRoomCode && (
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Room Code
               </label>
               <input
@@ -94,13 +96,13 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                 maxLength={16}
-                className="w-full border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 rounded-2xl px-4 py-3 text-sm font-mono tracking-widest uppercase transition outline-none"
+                className="w-full bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 rounded-2xl px-4 py-3 text-sm font-mono tracking-widest uppercase transition outline-none"
               />
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Your Name
             </label>
             <input
@@ -110,12 +112,12 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={40}
-              className="w-full border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 rounded-2xl px-4 py-3 text-sm transition outline-none"
+              className="w-full bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/30 rounded-2xl px-4 py-3 text-sm transition outline-none"
             />
           </div>
 
           {error && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-medium flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
               <span className="text-sm">⚠️</span>
               <span>{error}</span>
             </div>
@@ -125,14 +127,14 @@ export function JoinModal({ roomCode: initialRoomCode, onSuccess, onCancel }: Jo
             <button
               type="button"
               onClick={handleClose}
-              className="w-1/3 py-3 px-4 rounded-2xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition"
+              className="w-1/3 py-3 px-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !name.trim() || (!initialRoomCode && !roomCode.trim())}
-              className="w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-2xl text-sm transition shadow-md shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-2xl text-sm transition shadow-lg shadow-indigo-600/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

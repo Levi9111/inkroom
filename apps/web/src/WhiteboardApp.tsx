@@ -71,6 +71,10 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
   const [canRedo, setCanRedo] = useState(false);
 
   const activePage = pages[currentPageIndex - 1] || pages[0];
+  const activePageRef = useRef(activePage);
+  useEffect(() => {
+    activePageRef.current = activePage;
+  }, [activePage]);
 
   // Callback to connect Hocuspocus provider for a specific page and wire it to CanvasEngine
   const switchToPage = useCallback((pageId: string) => {
@@ -115,16 +119,22 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
 
     const engine = new CanvasEngine(canvasContainerRef.current, {
       onCommitElement: (element) => {
-        const mgr = collabRef.current?.getOrCreatePageManager(activePage.id) || pageManager;
-        mgr.setElement(element);
-        setCanUndo(mgr.canUndo());
-        setCanRedo(mgr.canRedo());
+        const currentActivePage = activePageRef.current;
+        const mgr = collabRef.current?.getOrCreatePageManager(currentActivePage.id);
+        if (mgr) {
+          mgr.setElement(element);
+          setCanUndo(mgr.canUndo());
+          setCanRedo(mgr.canRedo());
+        }
       },
       onDeleteElement: (id) => {
-        const mgr = collabRef.current?.getOrCreatePageManager(activePage.id) || pageManager;
-        mgr.deleteElement(id);
-        setCanUndo(mgr.canUndo());
-        setCanRedo(mgr.canRedo());
+        const currentActivePage = activePageRef.current;
+        const mgr = collabRef.current?.getOrCreatePageManager(currentActivePage.id);
+        if (mgr) {
+          mgr.deleteElement(id);
+          setCanUndo(mgr.canUndo());
+          setCanRedo(mgr.canRedo());
+        }
       },
       onPointerMove: (x, y) => {
         collab.broadcastCursor(x, y);
@@ -151,8 +161,9 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
             author: participantId || 'user',
             createdAt: Date.now(),
           };
-          const mgr = collabRef.current?.getOrCreatePageManager(activePage.id) || pageManager;
-          mgr.setElement(imageEl);
+          const currentActivePage = activePageRef.current;
+          const mgr = collabRef.current?.getOrCreatePageManager(currentActivePage.id);
+          mgr?.setElement(imageEl);
         } catch (err) {
           console.error('Image paste failed:', err);
         }
@@ -184,18 +195,19 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
   // Update canvas background when page changes or theme toggles
   useEffect(() => {
     if (engineRef.current && activePage) {
-      if (theme === 'blackboard') {
-        engineRef.current.drawBackground({ type: 'blank', color: '#1F3D2F' });
-      } else {
-        engineRef.current.drawBackground(activePage.background);
-      }
+      engineRef.current.drawBackground(activePage.background, theme);
     }
   }, [activePage, theme]);
 
   // Sync tool and color to canvas engine
   useEffect(() => {
+    const isDarkBg = theme === 'dark' || theme === 'blackboard';
+    const effectiveColor = isDarkBg && (strokeColor === '#111827' || strokeColor === '#000000')
+      ? '#F8FAFC'
+      : strokeColor;
+
     engineRef.current?.setTool(activeTool, {
-      color: theme === 'blackboard' && strokeColor === '#111827' ? '#FFFFFF' : strokeColor,
+      color: effectiveColor,
       width: strokeWidth,
       shapeKind: activeShapeKind,
     });
@@ -392,6 +404,7 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
         onModeChange={setMode}
         participantCount={participants.length}
         handRaisedCount={participants.filter((p) => p.handRaised).length}
+        roomCode={roomCode}
       />
 
       {/* Non-blocking Offline / Reconnect Banner */}
@@ -413,7 +426,7 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
           ref={canvasContainerRef}
           className="absolute inset-0 cursor-crosshair"
           style={{
-            backgroundColor: theme === 'blackboard' ? '#1F3D2F' : '#FFFFFF',
+            backgroundColor: theme === 'blackboard' ? '#1B3B2B' : theme === 'dark' ? '#0B0F19' : '#FFFFFF',
           }}
         />
 

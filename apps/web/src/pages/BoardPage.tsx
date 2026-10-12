@@ -4,6 +4,8 @@ import { joinBoard } from '../api/boardApi';
 import { JoinModal } from '../components/JoinModal';
 import { WhiteboardApp } from '../WhiteboardApp';
 
+import { InkroomLogo } from '../components/InkroomLogo';
+
 interface BoardPageProps {
   roomCode?: string;
   boardId?: string;
@@ -49,16 +51,14 @@ export function BoardPage({ roomCode, boardId, teacherHash }: BoardPageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center animate-bounce shadow-xl">
-          <span className="text-xl">✍️</span>
-        </div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white space-y-4 transition-colors">
+        <InkroomLogo size={48} className="animate-bounce" />
         <div className="flex items-center gap-3">
-          <svg className="animate-spin h-5 w-5 text-indigo-400" viewBox="0 0 24 24" fill="none">
+          <svg className="animate-spin h-5 w-5 text-indigo-500" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
-          <span className="text-sm font-medium text-slate-300">Connecting to classroom…</span>
+          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Connecting to classroom…</span>
         </div>
       </div>
     );
@@ -66,14 +66,14 @@ export function BoardPage({ roomCode, boardId, teacherHash }: BoardPageProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-        <div className="bg-slate-900 border border-rose-900/40 rounded-3xl p-8 max-w-md w-full text-center space-y-5 shadow-2xl">
-          <div className="w-14 h-14 rounded-2xl bg-rose-950/60 border border-rose-800 text-rose-400 flex items-center justify-center mx-auto text-2xl">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-rose-900/40 rounded-3xl p-8 max-w-md w-full text-center space-y-5 shadow-2xl">
+          <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-500 flex items-center justify-center mx-auto text-2xl">
             ⚠️
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white">Classroom Access Error</h3>
-            <p className="text-sm text-slate-400 mt-2">{error}</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Classroom Access Error</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{error}</p>
           </div>
           <div className="pt-2 flex gap-3">
             <button
@@ -81,7 +81,7 @@ export function BoardPage({ roomCode, boardId, teacherHash }: BoardPageProps) {
                 clearSession();
                 window.location.href = '/';
               }}
-              className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl text-sm transition"
+              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-semibold py-3 rounded-xl text-sm transition"
             >
               Back to Home
             </button>
@@ -98,11 +98,9 @@ export function BoardPage({ roomCode, boardId, teacherHash }: BoardPageProps) {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center animate-pulse">
-          <span className="text-xl">✍️</span>
-        </div>
-        <p className="text-sm text-slate-400">Loading classroom session…</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white space-y-4 transition-colors">
+        <InkroomLogo size={48} className="animate-pulse" />
+        <p className="text-sm text-slate-500 dark:text-slate-400">Loading classroom session…</p>
       </div>
     );
   }
