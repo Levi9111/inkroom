@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="facet-top" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+    <linearGradient id="facet-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#3730A3" />
+    </linearGradient>
+    <linearGradient id="facet-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="100%" stop-color="#6B21A8" />
+    </linearGradient>
+  </defs>
+  <!-- Top Facet -->
+  <path d="M16 3 L27 9.5 L16 16 L5 9.5 Z" fill="url(#facet-top)" />
+  <!-- Left Facet -->
+  <path d="M5 9.5 L16 16 L16 29 L5 22.5 Z" fill="url(#facet-left)" />
+  <!-- Right Facet -->
+  <path d="M16 16 L27 9.5 L27 22.5 L16 29 Z" fill="url(#facet-right)" />
+  <!-- Modern eraser angle ribbon accent -->
+  <path d="M5 16 L16 22.5 L16 25 L5 18.5 Z" fill="#38BDF8" opacity="0.85" />
+  <path d="M16 22.5 L27 16 L27 18.5 L16 25 Z" fill="#06B6D4" opacity="0.85" />
+</svg>

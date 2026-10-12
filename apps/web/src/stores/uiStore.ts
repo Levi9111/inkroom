@@ -56,6 +56,32 @@ export interface UIState {
   setFollowingTeacher: (follow: boolean) => void;
 }
 
+const getInitialTheme = (): AppTheme => {
+  if (typeof window === 'undefined') return 'light';
+  try {
+    const saved = localStorage.getItem('inkroom-theme') as AppTheme;
+    if (saved === 'light' || saved === 'dark' || saved === 'blackboard') return saved;
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+  } catch {}
+  return 'light';
+};
+
+const applyThemeClasses = (theme: AppTheme) => {
+  if (typeof window === 'undefined') return;
+  const root = document.documentElement;
+  root.classList.remove('dark', 'theme-dark', 'theme-blackboard');
+  if (theme === 'dark') {
+    root.classList.add('dark', 'theme-dark');
+  } else if (theme === 'blackboard') {
+    root.classList.add('dark', 'theme-blackboard');
+  }
+};
+
+const initialTheme = getInitialTheme();
+applyThemeClasses(initialTheme);
+
 export const useUIStore = create<UIState>((set) => ({
   activeTool: 'pen',
   activeShapeKind: 'rect',
@@ -68,7 +94,7 @@ export const useUIStore = create<UIState>((set) => ({
   zoom: 1,
   panX: 0,
   panY: 0,
-  theme: 'light',
+  theme: initialTheme,
 
   isShareModalOpen: false,
   isPagesDrawerOpen: false,
@@ -87,7 +113,13 @@ export const useUIStore = create<UIState>((set) => ({
   setZoom: (zoom) => set({ zoom: Math.max(0.1, Math.min(8, zoom)) }),
   setPan: (x, y) => set({ panX: x, panY: y }),
   resetView: () => set({ zoom: 1, panX: 0, panY: 0 }),
-  setTheme: (theme) => set({ theme }),
+  setTheme: (theme) => {
+    try {
+      localStorage.setItem('inkroom-theme', theme);
+    } catch {}
+    applyThemeClasses(theme);
+    set({ theme });
+  },
   setShareModalOpen: (open) => set({ isShareModalOpen: open }),
   setPagesDrawerOpen: (open) => set({ isPagesDrawerOpen: open }),
   setParticipantsDrawerOpen: (open) => set({ isParticipantsDrawerOpen: open }),
