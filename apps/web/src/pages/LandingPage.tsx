@@ -161,19 +161,19 @@ export function LandingPage() {
         {/* Hero Section */}
         <div className="text-center max-w-4xl mx-auto space-y-6 mb-12">
           {/* Announcement Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 text-xs font-medium shadow-inner backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-medium shadow-2xs backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
             <span>Zero Mandatory Signups • Peer CRDT Sync • Teacher-Locked Presentation</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08]">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.08]">
             The Real-Time Whiteboard <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-indigo-300 via-indigo-100 to-purple-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-300 dark:via-indigo-100 dark:to-purple-300 bg-clip-text text-transparent">
               Built for Teachers & Classes
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
             Instant online classrooms without accounts or subscription paywalls. Launch a board in one click, share a 6-letter room code, and teach with smooth pressure ink and live participant cursors.
           </p>
 
@@ -445,20 +445,20 @@ export function LandingPage() {
         {/* Feature Showcase: Asymmetrical 4-Card Bento Grid */}
         <section id="features" className="w-full max-w-6xl mx-auto py-16 scroll-mt-24">
           <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
-            <h2 className="text-xs font-bold tracking-widest text-indigo-400 uppercase">
+            <h2 className="text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase">
               Classroom-First Engineering
             </h2>
-            <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <p className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Crafted specifically for educators, students, and live lectures
             </p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Every detail is engineered for frictionless real-time teaching without cognitive overhead.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Bento Card 1 (Large - 2 cols): Teacher Command & Control */}
-            <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-gradient-to-b dark:from-indigo-950/20 dark:via-slate-900/40 dark:to-slate-900/60 p-8 backdrop-blur-xl relative overflow-hidden group hover:border-indigo-500/40 interactive-hover flex flex-col justify-between shadow-xs">
+            <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-indigo-500/30 bg-white dark:bg-slate-900 p-8 backdrop-blur-xl relative overflow-hidden group hover:border-indigo-500/50 interactive-hover flex flex-col justify-between shadow-xs dark:shadow-xl dark:shadow-indigo-950/30">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-indigo-600/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <Presentation className="w-6 h-6" />
@@ -467,31 +467,31 @@ export function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Teacher Command & Classroom Moderation
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-                    Switch between <strong>Present Mode</strong> (locks canvas for lecture explanation) and <strong>Collaborative Mode</strong> (students solve problems together). Manage student hand-raising queues and clear accidental strokes with teacher authority.
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+                    Switch between <strong className="text-slate-900 dark:text-white font-semibold">Present Mode</strong> (locks canvas for lecture explanation) and <strong className="text-slate-900 dark:text-white font-semibold">Collaborative Mode</strong> (students solve problems together). Manage student hand-raising queues and clear accidental strokes with teacher authority.
                   </p>
                 </div>
               </div>
 
               {/* Sub-feature Badges */}
               <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 grid sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-white/5 space-y-1">
-                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">Laser Pointer</span>
-                  <p className="text-[11px] text-slate-500">Decaying light trails highlight key steps without cluttering the board.</p>
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1.5 shadow-2xs">
+                  <span className="font-bold text-xs text-indigo-600 dark:text-indigo-400">Laser Pointer</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Decaying light trails highlight key steps without cluttering the board.</p>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-white/5 space-y-1">
-                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">Raise Hand Queue</span>
-                  <p className="text-[11px] text-slate-500">Live student notifications with count badges in the top navigation bar.</p>
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1.5 shadow-2xs">
+                  <span className="font-bold text-xs text-indigo-600 dark:text-indigo-400">Raise Hand Queue</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Live student notifications with count badges in the top navigation bar.</p>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-950/50 border border-slate-200/80 dark:border-white/5 space-y-1">
-                  <span className="font-semibold text-indigo-600 dark:text-indigo-300">Follow Teacher</span>
-                  <p className="text-[11px] text-slate-500">Keep all student screens focused on the exact slide and viewport you teach.</p>
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1.5 shadow-2xs">
+                  <span className="font-bold text-xs text-indigo-600 dark:text-indigo-400">Follow Teacher</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Keep all student screens focused on the exact slide and viewport you teach.</p>
                 </div>
               </div>
             </div>
 
             {/* Bento Card 2 (1 col): Local-First Offline Resilience */}
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/50 p-8 backdrop-blur-xl relative group hover:border-amber-500/40 interactive-hover flex flex-col justify-between shadow-xs">
+            <div className="rounded-xl border border-slate-200 dark:border-amber-500/30 bg-white dark:bg-slate-900 p-8 backdrop-blur-xl relative group hover:border-amber-500/50 interactive-hover flex flex-col justify-between shadow-xs dark:shadow-xl dark:shadow-amber-950/20">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-amber-600/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                   <WifiOff className="w-6 h-6" />
@@ -500,20 +500,20 @@ export function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Zero-Loss Offline Persistence
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                     Powered by local IndexedDB. If classroom Wi-Fi hiccups or drops, your handwriting stays intact and automatically re-synchronizes the instant connection is restored.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-emerald-500" />
                 <span>Automatic background reconnection</span>
               </div>
             </div>
 
             {/* Bento Card 3 (1 col): Fluid Pressure Ink Engine */}
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/50 p-8 backdrop-blur-xl relative group hover:border-emerald-500/40 interactive-hover flex flex-col justify-between shadow-xs">
+            <div className="rounded-xl border border-slate-200 dark:border-emerald-500/30 bg-white dark:bg-slate-900 p-8 backdrop-blur-xl relative group hover:border-emerald-500/50 interactive-hover flex flex-col justify-between shadow-xs dark:shadow-xl dark:shadow-emerald-950/20">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-emerald-600/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <PenTool className="w-6 h-6" />
@@ -522,20 +522,20 @@ export function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Pressure Ink & Clipboard Pasting
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                     Smooth velocity-interpolated freehand lines, translucent highlighters, geometric snapping for diagrams, and direct image pasting from your system clipboard.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
                 <span className="font-mono text-emerald-600 dark:text-emerald-400 text-xs font-bold">60+ FPS</span>
                 <span>Hardware-accelerated Konva 2D stage</span>
               </div>
             </div>
 
             {/* Bento Card 4 (Large - 2 cols): Open Formats & Vector Export */}
-            <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-gradient-to-b dark:from-purple-950/20 dark:via-slate-900/40 dark:to-slate-900/60 p-8 backdrop-blur-xl relative group hover:border-purple-500/40 interactive-hover flex flex-col justify-between shadow-xs">
+            <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-purple-500/30 bg-white dark:bg-slate-900 p-8 backdrop-blur-xl relative group hover:border-purple-500/50 interactive-hover flex flex-col justify-between shadow-xs dark:shadow-xl dark:shadow-purple-950/30">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-lg bg-purple-600/15 border border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
                   <FileCode2 className="w-6 h-6" />
@@ -544,22 +544,43 @@ export function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Vector Export & Open Document Portability
                   </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-                    Never lose your lecture material to proprietary closed platforms. Export entire multi-page lecture notes to resolution-independent SVG vector graphics, presentation PNGs, or raw <code>.inkroom</code> bundle files.
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+                    Never lose your lecture material to proprietary closed platforms. Export entire multi-page lecture notes to resolution-independent SVG vector graphics, presentation PNGs, or raw <code className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 font-mono text-xs font-semibold">.inkroom</code> bundle files.
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center gap-3 text-xs">
-                <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-mono font-semibold">
-                  .SVG Vector Export
-                </span>
-                <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-mono font-semibold">
-                  .PNG High-DPI Slide
-                </span>
-                <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-mono font-semibold">
-                  .inkroom JSON Document
-                </span>
+              {/* Sub-feature format chips */}
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-white/10 grid sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 flex items-center gap-3 shadow-2xs">
+                  <div className="w-8 h-8 rounded-md bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 font-mono font-bold text-xs shrink-0">
+                    SVG
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white block">.SVG Vector Export</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Infinite zoom vector graphic</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 flex items-center gap-3 shadow-2xs">
+                  <div className="w-8 h-8 rounded-md bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-mono font-bold text-xs shrink-0">
+                    PNG
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white block">.PNG Slide</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">High-DPI raster presentation</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 flex items-center gap-3 shadow-2xs">
+                  <div className="w-8 h-8 rounded-md bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xs shrink-0">
+                    INK
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white block">.inkroom Document</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Lossless CRDT stroke bundle</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -569,7 +590,7 @@ export function LandingPage() {
         <section id="shortcuts" className="w-full max-w-6xl mx-auto py-16 scroll-mt-28">
           <div className="grid md:grid-cols-2 gap-8 items-start">
             {/* Keyboard Shortcuts Table */}
-            <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/40 p-8 backdrop-blur-xl space-y-6 shadow-xs">
+            <div className="rounded-xl border border-slate-200 dark:border-white/15 bg-white dark:bg-slate-900 p-8 backdrop-blur-xl space-y-6 shadow-xs">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-700 dark:text-slate-300">
                   <Command className="w-5 h-5" />
@@ -581,35 +602,35 @@ export function LandingPage() {
               </div>
 
               <div className="space-y-2.5 text-xs">
-                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-600 dark:text-slate-300">Pen Drawing Tool</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">P</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Pen Drawing Tool</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/15 font-mono text-slate-800 dark:text-slate-100 font-semibold">P</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-600 dark:text-slate-300">Highlighter Marker</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">H</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Highlighter Marker</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/15 font-mono text-slate-800 dark:text-slate-100 font-semibold">H</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-600 dark:text-slate-300">Geometric Shapes</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">S</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Geometric Shapes</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/15 font-mono text-slate-800 dark:text-slate-100 font-semibold">S</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-600 dark:text-slate-300">Teacher Laser Pointer</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">L</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Teacher Laser Pointer</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/15 font-mono text-slate-800 dark:text-slate-100 font-semibold">L</kbd>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
-                  <span className="text-slate-600 dark:text-slate-300">Pan Canvas</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">Space + Drag</kbd>
+                <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/10">
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Pan Canvas</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/15 font-mono text-slate-800 dark:text-slate-100 font-semibold">Space + Drag</kbd>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-slate-600 dark:text-slate-300">Undo Stroke</span>
-                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 font-mono text-slate-700 dark:text-slate-200">Ctrl + Z</kbd>
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Undo Stroke</span>
+                  <kbd className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/15 font-mono text-slate-800 dark:text-slate-100 font-semibold">Ctrl + Z</kbd>
                 </div>
               </div>
             </div>
 
             {/* Architecture Specs */}
-            <div id="architecture" className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/40 p-8 backdrop-blur-xl space-y-6 scroll-mt-28 shadow-xs">
+            <div id="architecture" className="rounded-xl border border-slate-200 dark:border-white/15 bg-white dark:bg-slate-900 p-8 backdrop-blur-xl space-y-6 scroll-mt-28 shadow-xs">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                   <Activity className="w-5 h-5" />
@@ -621,28 +642,28 @@ export function LandingPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1">
                   <span className="text-2xl font-black text-slate-900 dark:text-white">&lt; 15 ms</span>
                   <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">CRDT Sync Latency</p>
-                  <p className="text-[11px] text-slate-500">Binary WebSocket payloads via Hocuspocus</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Binary WebSocket payloads via Hocuspocus</p>
                 </div>
 
-                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1">
                   <span className="text-2xl font-black text-slate-900 dark:text-white">Zero</span>
                   <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Accounts Required</p>
-                  <p className="text-[11px] text-slate-500">Anonymous session tokens with role claims</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Anonymous session tokens with role claims</p>
                 </div>
 
-                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1">
                   <span className="text-2xl font-black text-slate-900 dark:text-white">100%</span>
                   <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">Open Source</p>
-                  <p className="text-[11px] text-slate-500">Permissive MIT License on GitHub</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Permissive MIT License on GitHub</p>
                 </div>
 
-                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 space-y-1">
+                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 space-y-1">
                   <span className="text-2xl font-black text-slate-900 dark:text-white">Local-First</span>
                   <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">IndexedDB Cache</p>
-                  <p className="text-[11px] text-slate-500">Never lose a drawing on network disconnect</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Never lose a drawing on network disconnect</p>
                 </div>
               </div>
             </div>
