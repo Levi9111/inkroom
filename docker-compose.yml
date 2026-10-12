@@ -9,7 +9,7 @@ services:
     container_name: inkroom-app
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       - NODE_ENV=production
       - PORT=8080
@@ -22,7 +22,8 @@ services:
     volumes:
       - inkroom-uploads:/app/uploads
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
 
   mongo:
     image: mongo:7
@@ -30,6 +31,11 @@ services:
     restart: unless-stopped
     volumes:
       - inkroom-db:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   inkroom-uploads:
