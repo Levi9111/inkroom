@@ -34,6 +34,7 @@ export class CanvasEngine {
 
   // Active Drawing State
   private isDrawing = false;
+  private strokeOrigin: { x: number; y: number } = { x: 0, y: 0 };
   private activePoints: number[] = [];
   private activeTool: string = 'pen';
   private strokeColor = '#111827';
@@ -99,6 +100,11 @@ export class CanvasEngine {
       }
     }
     if (options?.shapeKind) this.shapeKind = options.shapeKind;
+
+    // Reset active layer to clean origin on tool change
+    this.activeLayer.destroyChildren();
+    this.activeLayer.position({ x: 0, y: 0 });
+    this.activeLayer.batchDraw();
 
     if (tool !== 'eraser' && this.eraserPreview) {
       this.eraserPreview.destroy();
@@ -377,13 +383,12 @@ export class CanvasEngine {
 
   private handlePointerDown(x: number, y: number, pressure: number, e: PointerEvent) {
     this.isDrawing = true;
+    this.activeLayer.destroyChildren();
+    this.activeLayer.position({ x: 0, y: 0 });
 
     if (this.activeTool === 'pen' || this.activeTool === 'highlighter') {
+      this.strokeOrigin = { x, y };
       this.activePoints = [0, 0, pressure]; // relative to origin (x, y)
-      this.activeLayer.destroyChildren();
-
-      // Set starting position
-      this.activeLayer.position({ x, y });
     } else if (this.activeTool === 'eraser') {
       this.isEraserActive = true;
       this.lastEraserPos = { x, y };
@@ -400,9 +405,8 @@ export class CanvasEngine {
     if (!this.isDrawing) return;
 
     if (this.activeTool === 'pen' || this.activeTool === 'highlighter') {
-      const origin = this.activeLayer.position();
-      const relX = x - origin.x;
-      const relY = y - origin.y;
+      const relX = x - this.strokeOrigin.x;
+      const relY = y - this.strokeOrigin.y;
       this.activePoints.push(relX, relY, pressure);
 
       // Fast live-ink rendering on Active Layer only
@@ -415,6 +419,8 @@ export class CanvasEngine {
       if (pathD) {
         this.activeLayer.add(
           new Konva.Path({
+            x: this.strokeOrigin.x,
+            y: this.strokeOrigin.y,
             data: pathD,
             fill: this.strokeColor,
             opacity: this.activeTool === 'highlighter' ? 0.35 : 1,
@@ -460,14 +466,22 @@ export class CanvasEngine {
       };
 
       if (this.shapeKind === 'rect') {
-        this.activeLayer.add(new Konva.Rect({ x: startX, y: startY, width: w, height: h, ...shapeProps }));
+        const rx = Math.min(startX, x);
+        const ry = Math.min(startY, y);
+        const rw = Math.abs(w);
+        const rh = Math.abs(h);
+        this.activeLayer.add(new Konva.Rect({ x: rx, y: ry, width: rw, height: rh, ...shapeProps }));
       } else if (this.shapeKind === 'ellipse') {
+        const rx = Math.min(startX, x);
+        const ry = Math.min(startY, y);
+        const rw = Math.abs(w);
+        const rh = Math.abs(h);
         this.activeLayer.add(
           new Konva.Ellipse({
-            x: startX + w / 2,
-            y: startY + h / 2,
-            radiusX: Math.abs(w / 2),
-            radiusY: Math.abs(h / 2),
+            x: rx + rw / 2,
+            y: ry + rh / 2,
+            radiusX: Math.max(1, rw / 2),
+            radiusY: Math.max(1, rh / 2),
             ...shapeProps,
           })
         );
@@ -501,7 +515,6 @@ export class CanvasEngine {
       }
 
       if (this.activePoints.length >= 6) {
-        const origin = this.activeLayer.position();
         // Simplify stroke points (Ramer-Douglas-Peucker) only if more than 2 points
         const simplified = this.activePoints.length > 6 ? simplifyStrokePoints(this.activePoints, 0.8) : this.activePoints;
 
@@ -512,8 +525,8 @@ export class CanvasEngine {
           color: this.strokeColor,
           size: this.strokeWidth,
           opacity: this.activeTool === 'highlighter' ? 0.35 : 1,
-          x: origin.x,
-          y: origin.y,
+          x: this.strokeOrigin.x,
+          y: this.strokeOrigin.y,
           rotation: 0,
           z: 'a' + Date.now().toString(36),
           author: this.authorId,
@@ -524,6 +537,7 @@ export class CanvasEngine {
         this.callbacks.onCommitElement(newStroke);
       }
       this.activeLayer.destroyChildren();
+      this.activeLayer.position({ x: 0, y: 0 });
       this.activeLayer.batchDraw();
     } else if (this.activeTool === 'shape') {
       const startX = this.activePoints[0];
@@ -535,14 +549,20 @@ export class CanvasEngine {
       const h = endY - startY;
 
       if (Math.abs(w) > 4 || Math.abs(h) > 4) {
+        const isBoxShape = this.shapeKind === 'rect' || this.shapeKind === 'ellipse';
+        const finalX = isBoxShape ? Math.min(startX, endX) : startX;
+        const finalY = isBoxShape ? Math.min(startY, endY) : startY;
+        const finalW = isBoxShape ? Math.abs(w) : w;
+        const finalH = isBoxShape ? Math.abs(h) : h;
+
         const newShape: Shape = {
           id: 'sh_' + Math.random().toString(36).substring(2, 11),
           type: 'shape',
           kind: this.shapeKind,
-          x: startX,
-          y: startY,
-          width: w,
-          height: h,
+          x: finalX,
+          y: finalY,
+          width: finalW,
+          height: finalH,
           stroke: this.strokeColor,
           strokeWidth: this.strokeWidth,
           fill: null,
@@ -556,6 +576,7 @@ export class CanvasEngine {
         this.callbacks.onCommitElement(newShape);
       }
       this.activeLayer.destroyChildren();
+      this.activeLayer.position({ x: 0, y: 0 });
       this.activeLayer.batchDraw();
     } else if (this.activeTool === 'laser') {
       // Fade out laser trail
