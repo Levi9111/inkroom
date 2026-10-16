@@ -92,10 +92,10 @@ export function computeStrokeBounds(stroke: Stroke): BoundingBox {
 }
 
 export function computeShapeBounds(shape: Shape): BoundingBox {
-  const minX = shape.x;
-  const minY = shape.y;
-  const maxX = shape.x + shape.width;
-  const maxY = shape.y + shape.height;
+  const minX = Math.min(shape.x, shape.x + shape.width);
+  const minY = Math.min(shape.y, shape.y + shape.height);
+  const maxX = Math.max(shape.x, shape.x + shape.width);
+  const maxY = Math.max(shape.y, shape.y + shape.height);
 
   return {
     minX,

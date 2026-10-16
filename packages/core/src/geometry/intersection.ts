@@ -1,3 +1,7 @@
+import type { Shape } from '@inkroom/shared';
+import type { BoundingBox } from './bbox';
+import { distanceToSegment, distanceBetweenPoints } from './distance';
+
 export function lineSegmentsIntersect(
   x1: number,
   y1: number,
@@ -25,7 +29,16 @@ export function doesEraserIntersectStroke(
   strokeWidth: number
 ): boolean {
   const threshold = eraserPoint.radius + strokeWidth / 2;
-  const numPoints = strokePoints.length / 3;
+  const numPoints = Math.floor(strokePoints.length / 3);
+
+  if (numPoints <= 0) return false;
+
+  // Single-point strokes (dots / taps)
+  if (numPoints === 1) {
+    const px = strokeOrigin.x + strokePoints[0];
+    const py = strokeOrigin.y + strokePoints[1];
+    return distanceBetweenPoints(eraserPoint.x, eraserPoint.y, px, py) <= threshold;
+  }
 
   for (let i = 0; i < numPoints - 1; i++) {
     const x1 = strokeOrigin.x + strokePoints[i * 3];
@@ -33,28 +46,51 @@ export function doesEraserIntersectStroke(
     const x2 = strokeOrigin.x + strokePoints[(i + 1) * 3];
     const y2 = strokeOrigin.y + strokePoints[(i + 1) * 3 + 1];
 
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const lenSq = dx * dx + dy * dy;
-
-    let dist = 0;
-    if (lenSq === 0) {
-      const px = eraserPoint.x - x1;
-      const py = eraserPoint.y - y1;
-      dist = Math.sqrt(px * px + py * py);
-    } else {
-      const t = Math.max(0, Math.min(1, ((eraserPoint.x - x1) * dx + (eraserPoint.y - y1) * dy) / lenSq));
-      const projX = x1 + t * dx;
-      const projY = y1 + t * dy;
-      const px = eraserPoint.x - projX;
-      const py = eraserPoint.y - projY;
-      dist = Math.sqrt(px * px + py * py);
-    }
-
+    const dist = distanceToSegment(eraserPoint.x, eraserPoint.y, x1, y1, x2, y2);
     if (dist <= threshold) {
       return true;
     }
   }
 
   return false;
+}
+
+export function doesEraserIntersectShape(
+  eraserPoint: { x: number; y: number; radius: number },
+  shape: Shape
+): boolean {
+  const threshold = eraserPoint.radius + shape.strokeWidth / 2;
+
+  if (shape.kind === 'line' || shape.kind === 'arrow') {
+    const x1 = shape.x;
+    const y1 = shape.y;
+    const x2 = shape.x + shape.width;
+    const y2 = shape.y + shape.height;
+    return distanceToSegment(eraserPoint.x, eraserPoint.y, x1, y1, x2, y2) <= threshold;
+  }
+
+  // Rect or Ellipse bounds
+  const minX = Math.min(shape.x, shape.x + shape.width);
+  const maxX = Math.max(shape.x, shape.x + shape.width);
+  const minY = Math.min(shape.y, shape.y + shape.height);
+  const maxY = Math.max(shape.y, shape.y + shape.height);
+
+  const closestX = Math.max(minX, Math.min(eraserPoint.x, maxX));
+  const closestY = Math.max(minY, Math.min(eraserPoint.y, maxY));
+  const dx = eraserPoint.x - closestX;
+  const dy = eraserPoint.y - closestY;
+
+  return (dx * dx + dy * dy) <= threshold * threshold;
+}
+
+export function doesEraserIntersectBox(
+  eraserPoint: { x: number; y: number; radius: number },
+  box: BoundingBox
+): boolean {
+  const closestX = Math.max(box.minX, Math.min(eraserPoint.x, box.maxX));
+  const closestY = Math.max(box.minY, Math.min(eraserPoint.y, box.maxY));
+  const dx = eraserPoint.x - closestX;
+  const dy = eraserPoint.y - closestY;
+
+  return (dx * dx + dy * dy) <= eraserPoint.radius * eraserPoint.radius;
 }

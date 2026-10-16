@@ -7,6 +7,8 @@ import {
   simplifyStrokePoints,
   CanvasSpatialIndex,
   doesEraserIntersectStroke,
+  doesEraserIntersectShape,
+  doesEraserIntersectBox,
   computeElementBounds,
 } from '@inkroom/core';
 
@@ -38,6 +40,8 @@ export class CanvasEngine {
   private strokeWidth = 4;
   private shapeKind: ShapeKind = 'rect';
   private eraserRadius = 16;
+  private eraserPreview: Konva.Circle | null = null;
+  private lastEraserPos: { x: number; y: number } | null = null;
   private authorId = 'local';
   private isEraserActive = false;
 
@@ -88,8 +92,19 @@ export class CanvasEngine {
   public setTool(tool: string, options?: { color?: string; width?: number; shapeKind?: ShapeKind }) {
     this.activeTool = tool;
     if (options?.color) this.strokeColor = options.color;
-    if (options?.width) this.strokeWidth = options.width;
+    if (options?.width) {
+      this.strokeWidth = options.width;
+      if (tool === 'eraser') {
+        this.eraserRadius = Math.max(8, options.width / 2);
+      }
+    }
     if (options?.shapeKind) this.shapeKind = options.shapeKind;
+
+    if (tool !== 'eraser' && this.eraserPreview) {
+      this.eraserPreview.destroy();
+      this.eraserPreview = null;
+      this.uiLayer.batchDraw();
+    }
   }
 
   public setAuthorId(id: string) {
@@ -292,6 +307,9 @@ export class CanvasEngine {
       const stagePos = this.getPointerWorldPosition(e);
       this.callbacks.onPointerMove?.(stagePos.x, stagePos.y);
 
+      // Interactive visual eraser feedback
+      this.updateEraserCursor(stagePos.x, stagePos.y);
+
       // Support coalesced events for high-fidelity stylus input
       const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of events) {
@@ -307,7 +325,14 @@ export class CanvasEngine {
       this.handlePointerUp();
     };
     el.addEventListener('pointerup', endHandler);
-    el.addEventListener('pointerleave', endHandler);
+    el.addEventListener('pointerleave', (e: PointerEvent) => {
+      endHandler(e);
+      if (this.eraserPreview) {
+        this.eraserPreview.destroy();
+        this.eraserPreview = null;
+        this.uiLayer.batchDraw();
+      }
+    });
     el.addEventListener('pointercancel', endHandler);
 
     // Mouse wheel pan & zoom
@@ -361,6 +386,7 @@ export class CanvasEngine {
       this.activeLayer.position({ x, y });
     } else if (this.activeTool === 'eraser') {
       this.isEraserActive = true;
+      this.lastEraserPos = { x, y };
       this.eraseAtPoint(x, y);
     } else if (this.activeTool === 'laser') {
       this.laserPoints = [x, y];
@@ -405,7 +431,12 @@ export class CanvasEngine {
         points: this.activePoints,
       });
     } else if (this.activeTool === 'eraser') {
-      this.eraseAtPoint(x, y);
+      if (this.lastEraserPos) {
+        this.eraseAlongSegment(this.lastEraserPos.x, this.lastEraserPos.y, x, y);
+      } else {
+        this.eraseAtPoint(x, y);
+      }
+      this.lastEraserPos = { x, y };
     } else if (this.activeTool === 'laser') {
       this.laserPoints.push(x, y);
       if (this.laserPoints.length > 60) this.laserPoints.splice(0, 2);
@@ -457,6 +488,8 @@ export class CanvasEngine {
   }
 
   private handlePointerUp() {
+    this.lastEraserPos = null;
+    this.isEraserActive = false;
     if (!this.isDrawing) return;
     this.isDrawing = false;
     this.callbacks.onUpdateDraft?.(null);
@@ -548,11 +581,54 @@ export class CanvasEngine {
 
   }
 
+  private updateEraserCursor(x: number, y: number) {
+    if (this.activeTool !== 'eraser') {
+      if (this.eraserPreview) {
+        this.eraserPreview.destroy();
+        this.eraserPreview = null;
+        this.uiLayer.batchDraw();
+      }
+      return;
+    }
+
+    if (!this.eraserPreview) {
+      this.eraserPreview = new Konva.Circle({
+        radius: this.eraserRadius,
+        stroke: '#6366F1',
+        strokeWidth: 1.5,
+        fill: 'rgba(99, 102, 241, 0.15)',
+        dash: [4, 4],
+        listening: false,
+      });
+      this.uiLayer.add(this.eraserPreview);
+    }
+
+    this.eraserPreview.position({ x, y });
+    this.eraserPreview.radius(this.eraserRadius);
+    this.uiLayer.batchDraw();
+  }
+
+  private eraseAlongSegment(x1: number, y1: number, x2: number, y2: number) {
+    const dist = Math.hypot(x2 - x1, y2 - y1);
+    const step = Math.max(4, this.eraserRadius * 0.5);
+    const steps = Math.ceil(dist / step);
+    for (let i = 0; i <= steps; i++) {
+      const t = steps === 0 ? 0 : i / steps;
+      const sx = x1 + t * (x2 - x1);
+      const sy = y1 + t * (y2 - y1);
+      this.eraseAtPoint(sx, sy);
+    }
+  }
+
   private eraseAtPoint(x: number, y: number) {
     const candidateIds = this.spatialIndex.queryPoint(x, y, this.eraserRadius);
+    const toDelete: string[] = [];
+
     for (const id of candidateIds) {
       const el = this.elementMap.get(id);
-      if (el && el.type === 'stroke') {
+      if (!el) continue;
+
+      if (el.type === 'stroke') {
         const intersects = doesEraserIntersectStroke(
           { x, y, radius: this.eraserRadius },
           { x: el.x, y: el.y },
@@ -560,19 +636,27 @@ export class CanvasEngine {
           el.size
         );
         if (intersects) {
-          this.callbacks.onDeleteElement(id);
+          toDelete.push(id);
         }
-      } else if (el) {
+      } else if (el.type === 'shape') {
+        if (doesEraserIntersectShape({ x, y, radius: this.eraserRadius }, el)) {
+          toDelete.push(id);
+        }
+      } else {
         const bounds = computeElementBounds(el);
-        if (
-          x >= bounds.minX &&
-          x <= bounds.maxX &&
-          y >= bounds.minY &&
-          y <= bounds.maxY
-        ) {
-          this.callbacks.onDeleteElement(id);
+        if (doesEraserIntersectBox({ x, y, radius: this.eraserRadius }, bounds)) {
+          toDelete.push(id);
         }
       }
+    }
+
+    if (toDelete.length > 0) {
+      for (const id of toDelete) {
+        this.elementMap.delete(id);
+        this.spatialIndex.remove(id);
+        this.callbacks.onDeleteElement(id);
+      }
+      this.renderStaticElements();
     }
   }
 

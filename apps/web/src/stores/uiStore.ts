@@ -42,6 +42,7 @@ export interface UIState {
   setShapeKind: (kind: ShapeKind) => void;
   setColor: (color: string) => void;
   setStrokeWidth: (width: number) => void;
+  setEraserWidth: (width: number) => void;
   setPageId: (id: string) => void;
   setZoom: (zoom: number) => void;
   setPan: (x: number, y: number) => void;
@@ -109,6 +110,7 @@ export const useUIStore = create<UIState>((set) => ({
   setShapeKind: (kind) => set({ activeShapeKind: kind, activeTool: 'shape' }),
   setColor: (color) => set({ strokeColor: color }),
   setStrokeWidth: (width) => set({ strokeWidth: width }),
+  setEraserWidth: (width) => set({ eraserWidth: width }),
   setPageId: (id) => set({ activePageId: id }),
   setZoom: (zoom) => set({ zoom: Math.max(0.1, Math.min(8, zoom)) }),
   setPan: (x, y) => set({ panX: x, panY: y }),
