@@ -2,6 +2,7 @@ export * from './geometry/bbox';
 export * from './geometry/simplify';
 export * from './geometry/distance';
 export * from './geometry/intersection';
+export * from './geometry/slice';
 
 export * from './spatial/spatial-index';
 export * from './indexing/fractional-index';

@@ -27,6 +27,7 @@ describe('Geometry Utilities', () => {
       opacity: 1,
       x: 10,
       y: 20,
+      rotation: 0,
       z: 'a0',
       author: 'user_1',
       createdAt: 1000,

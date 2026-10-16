@@ -26,6 +26,7 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
     strokeColor,
     strokeWidth,
     eraserWidth,
+    eraserMode,
     theme,
     isHandRaised,
   } = useUIStore();
@@ -213,8 +214,9 @@ export function WhiteboardApp({ session }: { session: BoardSession }) {
       color: effectiveColor,
       width: effectiveWidth,
       shapeKind: activeShapeKind,
+      eraserMode,
     });
-  }, [activeTool, strokeColor, strokeWidth, eraserWidth, activeShapeKind, theme]);
+  }, [activeTool, strokeColor, strokeWidth, eraserWidth, eraserMode, activeShapeKind, theme]);
 
   // Sync hand raised state to Awareness
   useEffect(() => {

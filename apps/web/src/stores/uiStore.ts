@@ -20,6 +20,7 @@ export interface UIState {
   highlighterColor: string;
   highlighterWidth: number;
   eraserWidth: number;
+  eraserMode: 'precision' | 'object';
   activePageId: string;
   zoom: number;
   panX: number;
@@ -43,6 +44,7 @@ export interface UIState {
   setColor: (color: string) => void;
   setStrokeWidth: (width: number) => void;
   setEraserWidth: (width: number) => void;
+  setEraserMode: (mode: 'precision' | 'object') => void;
   setPageId: (id: string) => void;
   setZoom: (zoom: number) => void;
   setPan: (x: number, y: number) => void;
@@ -91,6 +93,7 @@ export const useUIStore = create<UIState>((set) => ({
   highlighterColor: '#FACC15',
   highlighterWidth: 20,
   eraserWidth: 24,
+  eraserMode: 'precision',
   activePageId: 'page_1',
   zoom: 1,
   panX: 0,
@@ -111,6 +114,7 @@ export const useUIStore = create<UIState>((set) => ({
   setColor: (color) => set({ strokeColor: color }),
   setStrokeWidth: (width) => set({ strokeWidth: width }),
   setEraserWidth: (width) => set({ eraserWidth: width }),
+  setEraserMode: (mode) => set({ eraserMode: mode }),
   setPageId: (id) => set({ activePageId: id }),
   setZoom: (zoom) => set({ zoom: Math.max(0.1, Math.min(8, zoom)) }),
   setPan: (x, y) => set({ panX: x, panY: y }),

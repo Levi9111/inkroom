@@ -10,6 +10,7 @@ import {
   doesEraserIntersectShape,
   doesEraserIntersectBox,
   computeElementBounds,
+  sliceStrokeWithEraser,
 } from '@inkroom/core';
 
 export interface CanvasEngineCallbacks {
@@ -41,7 +42,7 @@ export class CanvasEngine {
   private strokeWidth = 4;
   private shapeKind: ShapeKind = 'rect';
   private eraserRadius = 16;
-  private eraserPreview: Konva.Circle | null = null;
+  private eraserMode: 'precision' | 'object' = 'precision';
   private lastEraserPos: { x: number; y: number } | null = null;
   private authorId = 'local';
   private isEraserActive = false;
@@ -90,7 +91,10 @@ export class CanvasEngine {
     this.drawBackground({ type: 'blank', color: '#FFFFFF' });
   }
 
-  public setTool(tool: string, options?: { color?: string; width?: number; shapeKind?: ShapeKind }) {
+  public setTool(
+    tool: string,
+    options?: { color?: string; width?: number; shapeKind?: ShapeKind; eraserMode?: 'precision' | 'object' }
+  ) {
     this.activeTool = tool;
     if (options?.color) this.strokeColor = options.color;
     if (options?.width) {
@@ -100,17 +104,15 @@ export class CanvasEngine {
       }
     }
     if (options?.shapeKind) this.shapeKind = options.shapeKind;
+    if (options?.eraserMode) this.eraserMode = options.eraserMode;
 
     // Reset active layer to clean origin on tool change
     this.activeLayer.destroyChildren();
     this.activeLayer.position({ x: 0, y: 0 });
     this.activeLayer.batchDraw();
 
-    if (tool !== 'eraser' && this.eraserPreview) {
-      this.eraserPreview.destroy();
-      this.eraserPreview = null;
-      this.uiLayer.batchDraw();
-    }
+    // Update native browser cursor
+    this.updateEraserCursor();
   }
 
   public setAuthorId(id: string) {
@@ -313,9 +315,6 @@ export class CanvasEngine {
       const stagePos = this.getPointerWorldPosition(e);
       this.callbacks.onPointerMove?.(stagePos.x, stagePos.y);
 
-      // Interactive visual eraser feedback
-      this.updateEraserCursor(stagePos.x, stagePos.y);
-
       // Support coalesced events for high-fidelity stylus input
       const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of events) {
@@ -331,14 +330,7 @@ export class CanvasEngine {
       this.handlePointerUp();
     };
     el.addEventListener('pointerup', endHandler);
-    el.addEventListener('pointerleave', (e: PointerEvent) => {
-      endHandler(e);
-      if (this.eraserPreview) {
-        this.eraserPreview.destroy();
-        this.eraserPreview = null;
-        this.uiLayer.batchDraw();
-      }
-    });
+    el.addEventListener('pointerleave', endHandler);
     el.addEventListener('pointercancel', endHandler);
 
     // Mouse wheel pan & zoom
@@ -602,31 +594,16 @@ export class CanvasEngine {
 
   }
 
-  private updateEraserCursor(x: number, y: number) {
+  private updateEraserCursor() {
     if (this.activeTool !== 'eraser') {
-      if (this.eraserPreview) {
-        this.eraserPreview.destroy();
-        this.eraserPreview = null;
-        this.uiLayer.batchDraw();
-      }
+      this.container.style.cursor = '';
       return;
     }
-
-    if (!this.eraserPreview) {
-      this.eraserPreview = new Konva.Circle({
-        radius: this.eraserRadius,
-        stroke: '#6366F1',
-        strokeWidth: 1.5,
-        fill: 'rgba(99, 102, 241, 0.15)',
-        dash: [4, 4],
-        listening: false,
-      });
-      this.uiLayer.add(this.eraserPreview);
-    }
-
-    this.eraserPreview.position({ x, y });
-    this.eraserPreview.radius(this.eraserRadius);
-    this.uiLayer.batchDraw();
+    const r = Math.max(6, Math.min(64, Math.round(this.eraserRadius)));
+    const d = r * 2;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${d}" height="${d}" viewBox="0 0 ${d} ${d}"><circle cx="${r}" cy="${r}" r="${r - 1}" fill="rgba(99,102,241,0.15)" stroke="#6366F1" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="${r}" cy="${r}" r="1.5" fill="#6366F1"/></svg>`;
+    const cursor = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}') ${r} ${r}, crosshair`;
+    this.container.style.cursor = cursor;
   }
 
   private eraseAlongSegment(x1: number, y1: number, x2: number, y2: number) {
@@ -643,40 +620,73 @@ export class CanvasEngine {
 
   private eraseAtPoint(x: number, y: number) {
     const candidateIds = this.spatialIndex.queryPoint(x, y, this.eraserRadius);
-    const toDelete: string[] = [];
+    if (candidateIds.length === 0) return;
+
+    let hasChanged = false;
 
     for (const id of candidateIds) {
       const el = this.elementMap.get(id);
       if (!el) continue;
 
       if (el.type === 'stroke') {
-        const intersects = doesEraserIntersectStroke(
-          { x, y, radius: this.eraserRadius },
-          { x: el.x, y: el.y },
-          el.points,
-          el.size
-        );
-        if (intersects) {
-          toDelete.push(id);
+        if (this.eraserMode === 'precision') {
+          // Precision mode: slice stroke smoothly into surviving segments
+          const slices = sliceStrokeWithEraser(
+            { x, y, radius: this.eraserRadius },
+            el
+          );
+
+          // If exactly 1 stroke returned and reference unchanged, no collision occurred
+          if (slices.length === 1 && slices[0] === el) {
+            continue;
+          }
+
+          // Stroke was carved! Delete the original stroke
+          this.elementMap.delete(id);
+          this.spatialIndex.remove(id);
+          this.callbacks.onDeleteElement(id);
+          hasChanged = true;
+
+          // Insert surviving sub-strokes
+          for (const slice of slices) {
+            this.elementMap.set(slice.id, slice);
+            this.spatialIndex.insert(slice);
+            this.callbacks.onCommitElement(slice);
+          }
+        } else {
+          // Object mode: remove entire stroke on touch
+          const intersects = doesEraserIntersectStroke(
+            { x, y, radius: this.eraserRadius },
+            { x: el.x, y: el.y },
+            el.points,
+            el.size
+          );
+          if (intersects) {
+            this.elementMap.delete(id);
+            this.spatialIndex.remove(id);
+            this.callbacks.onDeleteElement(id);
+            hasChanged = true;
+          }
         }
       } else if (el.type === 'shape') {
         if (doesEraserIntersectShape({ x, y, radius: this.eraserRadius }, el)) {
-          toDelete.push(id);
+          this.elementMap.delete(id);
+          this.spatialIndex.remove(id);
+          this.callbacks.onDeleteElement(id);
+          hasChanged = true;
         }
       } else {
         const bounds = computeElementBounds(el);
         if (doesEraserIntersectBox({ x, y, radius: this.eraserRadius }, bounds)) {
-          toDelete.push(id);
+          this.elementMap.delete(id);
+          this.spatialIndex.remove(id);
+          this.callbacks.onDeleteElement(id);
+          hasChanged = true;
         }
       }
     }
 
-    if (toDelete.length > 0) {
-      for (const id of toDelete) {
-        this.elementMap.delete(id);
-        this.spatialIndex.remove(id);
-        this.callbacks.onDeleteElement(id);
-      }
+    if (hasChanged) {
       this.renderStaticElements();
     }
   }
